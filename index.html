@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F1EA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="보따리상점">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>보따리상점</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root {
+  --bg: #F3F1EA; --panel: #FFFFFF; --ink: #24272A; --muted: #6B7068; --line: #DEDCD2; --soft: #ECEAE1;
+  --green: #1F5A36; --green-soft: #E3EDE5; --ok: #2F7A4F; --warn: #A8641A; --bad: #B23A32; --accent: #34477A;
+  --display: "Gowun Batang", "Noto Serif KR", serif; --body: "Noto Sans KR", -apple-system, system-ui, sans-serif;
+  --tabh: 62px; color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.wrap { max-width: 640px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 14px) 16px calc(var(--tabh) + env(safe-area-inset-bottom) + 24px); }
+header.top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+header.top h1 { font-family: var(--display); font-size: 24px; margin: 0; letter-spacing: -.01em; }
+header.top .who { font-size: 12px; color: var(--muted); text-align: right; }
+header.top .who button { background: none; border: 0; color: var(--muted); text-decoration: underline; padding: 0; font-size: 12px; cursor: pointer; }
+h2 { font-family: var(--display); font-size: 19px; color: var(--green); margin: 22px 0 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+h2 small { font-family: var(--body); font-size: 12px; color: var(--muted); font-weight: 400; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.lines p { margin: 0 0 4px; } .lines p:first-child { font-weight: 700; font-size: 16px; }
+.muted { color: var(--muted); } .small { font-size: 12.5px; }
+.note { font-size: 12.5px; background: #FBF3E6; border: 1px solid #EBD7B4; color: #7A4B12; border-radius: 10px; padding: 8px 10px; margin-top: 8px; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.kpi .k { font-size: 12px; color: var(--muted); } .kpi .v { font-family: var(--display); font-size: 22px; font-variant-numeric: tabular-nums; line-height: 1.3; } .kpi .s { font-size: 12px; color: var(--muted); }
+.prog { margin: 10px 0; } .prog .row { display: flex; justify-content: space-between; font-size: 13.5px; gap: 8px; }
+.prog .row b { font-variant-numeric: tabular-nums; }
+.bar { height: 8px; background: var(--soft); border-radius: 99px; overflow: hidden; margin-top: 4px; position: relative; }
+.bar > i { display: block; height: 100%; border-radius: 99px; background: color-mix(in srgb, var(--bad) 78%, var(--ink)); }
+.bar > i.ok { background: var(--ok); }
+.bar > em { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); opacity: .55; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; border-radius: 99px; padding: 2px 10px; border: 1px solid var(--line); background: var(--panel); }
+.chip.bad { border-color: #E2B5B0; background: #FBEDEB; color: var(--bad); } .chip.warn { border-color: #EBD7B4; background: #FBF3E6; color: var(--warn); }
+.chip.ok { border-color: #BCD8C5; background: var(--green-soft); color: var(--green); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; padding: 6px 4px; border-bottom: 1px solid var(--ink); }
+td { padding: 8px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.task { display: grid; grid-template-columns: 28px 1fr; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.task:last-child { border-bottom: 0; }
+.task input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--green); margin: 1px 0 0; }
+.task .t { font-weight: 500; overflow-wrap: anywhere; } .task.done .t { text-decoration: line-through; color: var(--muted); }
+.task .m { font-size: 12px; color: var(--muted); display: flex; gap: 4px 10px; flex-wrap: wrap; margin-top: 2px; }
+.task .m .late { color: var(--bad); font-weight: 500; }
+.task .m select { font-size: 12px; padding: 1px 4px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.goal { display: grid; grid-template-columns: 26px 1fr; gap: 10px; }
+.goal .no { width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.goal .t { font-weight: 700; } .goal .ms { font-size: 13px; color: var(--muted); }
+.hb { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 8px; align-items: center; font-size: 13px; margin: 6px 0; }
+.hb .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hb .track { height: 10px; background: var(--soft); border-radius: 99px; overflow: hidden; } .hb .track i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.hb .val { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.post .who { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.post .ttl { font-weight: 700; margin: 2px 0 6px; } .post ul { margin: 0; padding-left: 18px; } .post li { margin: 2px 0; }
+.post .ask { margin-top: 8px; font-size: 13px; background: var(--green-soft); border-radius: 10px; padding: 8px 10px; }
+.post .ask b { color: var(--green); }
+.badge { font-size: 11px; border-radius: 6px; padding: 0 6px; background: var(--soft); color: var(--muted); }
+.seg { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 8px; scrollbar-width: none; } .seg::-webkit-scrollbar { display: none; }
+.seg button { flex: none; border: 1px solid var(--line); background: var(--panel); border-radius: 99px; padding: 4px 12px; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed=true] { background: var(--green); border-color: var(--green); color: #fff; }
+.field { display: grid; gap: 4px; margin-bottom: 10px; } .field > span { font-size: 12.5px; color: var(--muted); }
+input[type=text], input[type=email], input[type=password], input[type=date], input[type=number], textarea, select.in { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; font-size: 16px; }
+textarea { min-height: 70px; resize: vertical; }
+.btn { appearance: none; border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 700; background: var(--green); color: #fff; width: 100%; font-size: 16px; cursor: pointer; }
+.btn.ghost { background: var(--panel); color: var(--green); border: 1px solid var(--green); }
+.btn:disabled { opacity: .5; }
+.counter { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.counter:last-child { border-bottom: 0; }
+.counter .ctl { display: flex; align-items: center; gap: 10px; }
+.counter .ctl button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); font-size: 20px; line-height: 1; cursor: pointer; }
+.counter .ctl b { min-width: 2ch; text-align: center; font-family: var(--display); font-size: 20px; font-variant-numeric: tabular-nums; }
+.saved { font-size: 12px; color: var(--ok); min-height: 1.4em; margin-top: 6px; text-align: center; }
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+nav.tabs button { height: var(--tabh); background: none; border: 0; display: grid; place-items: center; align-content: center; gap: 2px; font-size: 11px; color: var(--muted); cursor: pointer; }
+nav.tabs button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
+.dot { display: inline-block; min-width: 16px; height: 16px; border-radius: 8px; background: var(--bad); color: #fff; font-size: 10px; line-height: 16px; padding: 0 4px; }
+.login { max-width: 380px; margin: 12vh auto 0; padding: 0 20px; }
+.login h1 { font-family: var(--display); font-size: 34px; margin: 0 0 4px; text-align: center; }
+.login p.sub { text-align: center; color: var(--muted); margin: 0 0 24px; }
+.err { color: var(--bad); font-size: 13px; min-height: 1.4em; margin: 6px 0; }
+.linkbtn { background: none; border: 0; color: var(--green); text-decoration: underline; font-size: 13px; cursor: pointer; padding: 6px 0; }
+.empty { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
+.spark { width: 100%; height: 120px; display: block; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div id="login" class="login" hidden>
+  <h1>보따리상점</h1>
+  <p class="sub">구민영 대표 · 송지수 매니저 전용</p>
+  <div class="field"><span>이메일</span><input type="email" id="l-email" autocomplete="username"></div>
+  <div class="field"><span>비밀번호</span><input type="password" id="l-pw" autocomplete="current-password"></div>
+  <div class="err" id="l-err"></div>
+  <button class="btn" id="l-go">로그인</button>
+  <p style="text-align:center"><button class="linkbtn" id="l-mode">처음이신가요? 비밀번호 만들기</button></p>
+</div>
+
+<div id="app" hidden>
+  <div class="wrap">
+    <header class="top"><h1>보따리상점</h1><div class="who"><span id="who"></span><br><button id="logout">로그아웃</button></div></header>
+    <section data-page="home"></section>
+    <section data-page="sales" hidden></section>
+    <section data-page="work" hidden></section>
+    <section data-page="store" hidden></section>
+    <section data-page="posts" hidden></section>
+  </div>
+  <nav class="tabs" aria-label="메뉴">
+    <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
+    <button data-go="sales"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>매출</button>
+    <button data-go="work"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>업무</button>
+    <button data-go="store"><svg viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5M4 9v11h16V9M4 9h16M9 20v-6h6v6"/></svg>매장</button>
+    <button data-go="posts"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>보고함</button>
+  </nav>
+</div>
+
+<script src="supabase.js"></script>
+<script>
+const SB_URL = 'https://zplpmnfkasoniqnulknv.supabase.co';
+const SB_KEY = 'sb_publishable_DTB6nlnzTdsCdqTQ9vz1WQ_HIu0d1mc';
+const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'bottari-auth' } });
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const won = (n) => n == null || isNaN(n) ? '—' : Math.round(+n).toLocaleString('ko-KR') + '원';
+const man = (n) => (+n / 10000).toLocaleString('ko-KR', { maximumFractionDigits: 1 }) + '만';
+const pct = (x, d = 1) => x == null || !isFinite(x) ? '—' : (x * 100).toFixed(d) + '%';
+const DOW = '일월화수목금토';
+const md = (s) => { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; };
+const kst = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+const mondayOf = (iso) => { const d = new Date(iso + 'T00:00:00Z'); const w = d.getUTCDay(); d.setUTCDate(d.getUTCDate() + (w === 0 ? 1 : 1 - w)); return d.toISOString().slice(0, 10); };
+const lastDay = (iso) => { const d = new Date(iso + 'T00:00:00Z'); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate(); };
+
+let ME = null, DB = {}, page = 'home', storeDate = kst(), postFilter = '전체', taskView = '이번 주';
+const COLS = ['report', 'tasks', 'goals', 'months', 'posts', 'storelog', 'carpet', 'staff'];
+
+/* ---------- 로그인 ---------- */
+let signupMode = false;
+$('#l-mode').onclick = () => { signupMode = !signupMode; $('#l-go').textContent = signupMode ? '비밀번호 만들고 시작하기' : '로그인'; $('#l-mode').textContent = signupMode ? '이미 비밀번호가 있어요 — 로그인' : '처음이신가요? 비밀번호 만들기'; $('#l-err').textContent = signupMode ? '등록된 이메일만 가입됩니다. 비밀번호는 8자 이상.' : ''; };
+$('#l-go').onclick = async () => {
+  const email = $('#l-email').value.trim(), password = $('#l-pw').value;
+  $('#l-err').textContent = ''; $('#l-go').disabled = true;
+  try {
+    if (signupMode) {
+      if (password.length < 8) throw new Error('비밀번호는 8자 이상으로 정해 주세요.');
+      const { error } = await sb.auth.signUp({ email, password });
+      if (error) throw new Error(/not_allowed|Database error/i.test(error.message) ? '등록되지 않은 이메일입니다.' : /already/i.test(error.message) ? '이미 가입된 이메일입니다. 로그인해 주세요.' : error.message);
+    }
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(/Invalid login/i.test(error.message) ? '이메일 또는 비밀번호가 맞지 않습니다.' : error.message);
+    await boot();
+  } catch (e) { $('#l-err').textContent = e.message; }
+  $('#l-go').disabled = false;
+};
+$('#logout').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+async function boot() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { $('#login').hidden = false; $('#app').hidden = true; return; }
+  const email = session.user.email.toLowerCase();
+  const { data: staff } = await sb.from('staff').select('*');
+  ME = (staff || []).find((s) => s.email.toLowerCase() === email);
+  if (!ME) { $('#login').hidden = false; $('#l-err').textContent = '등록되지 않은 계정입니다.'; await sb.auth.signOut(); return; }
+  DB.staff = staff;
+  $('#login').hidden = true; $('#app').hidden = false; $('#who').textContent = ME.name;
+  await loadAll(); render();
+  sb.channel('docs').on('postgres_changes', { event: '*', schema: 'public', table: 'docs' }, (p) => {
+    const r = p.new && p.new.collection ? p.new : p.old; if (!r) return;
+    DB[r.collection] = DB[r.collection] || {};
+    if (p.eventType === 'DELETE') delete DB[r.collection][r.id]; else DB[r.collection][r.id] = { ...p.new };
+    render();
+  }).subscribe();
+}
+async function loadAll() {
+  const { data, error } = await sb.from('docs').select('collection,id,data,version,updated_at').in('collection', COLS);
+  if (error) { alert('자료를 불러오지 못했습니다: ' + error.message); return; }
+  for (const c of COLS) if (c !== 'staff') DB[c] = {};
+  for (const r of data) DB[r.collection][r.id] = r;
+}
+const rows = (c) => Object.values(DB[c] || {});
+const rep = (id) => DB.report?.[id]?.data || {};
+async function save(collection, id, data) {
+  const { error } = await sb.from('docs').upsert({ collection, id, data });
+  if (error) { alert('저장하지 못했습니다: ' + error.message); return false; }
+  DB[collection] = DB[collection] || {}; DB[collection][id] = { ...(DB[collection][id] || {}), collection, id, data };
+  return true;
+}
+
+/* ---------- 탭 ---------- */
+document.querySelectorAll('nav.tabs button').forEach((b) => b.onclick = () => { page = b.dataset.go; render(); window.scrollTo(0, 0); });
+function render() {
+  document.querySelectorAll('nav.tabs button').forEach((b) => b.setAttribute('aria-current', b.dataset.go === page ? 'page' : 'false'));
+  document.querySelectorAll('section[data-page]').forEach((s) => s.hidden = s.dataset.page !== page);
+  ({ home: drawHome, sales: drawSales, work: drawWork, store: drawStore, posts: drawPosts })[page]($(`section[data-page=${page}]`));
+}
+
+/* ---------- 매출 계산 (일일보고와 같은 규칙) ---------- */
+function calc() {
+  const daily = (rep('daily').rows || []).map((d) => ({ ...d, online: +d.cafe24 + +d.smart + +d.ohouse, total: +d.store + +d.cafe24 + +d.smart + +d.ohouse }));
+  if (!daily.length) return null;
+  const y = daily[daily.length - 1], month = y.day.slice(0, 7), dom = +y.day.slice(8, 10);
+  const yy = +month.slice(0, 4), mm = +month.slice(5, 7), dim = lastDay(y.day);
+  let bdays = 0, elapsed = 0;
+  for (let i = 1; i <= dim; i++) if (new Date(Date.UTC(yy, mm - 1, i)).getUTCDay() !== 1) { bdays++; if (i <= dom) elapsed++; }
+  const pm = new Date(Date.UTC(yy, mm - 2, 1)).toISOString().slice(0, 7);
+  const cur = daily.filter((d) => d.day.slice(0, 7) === month), prevAll = daily.filter((d) => d.day.slice(0, 7) === pm), prev = prevAll.filter((d) => +d.day.slice(8, 10) <= dom);
+  const sum = (r, f) => r.reduce((s, d) => s + (+d[f] || 0), 0);
+  const back = (n) => { const t = new Date(y.day + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() - n); return t.toISOString().slice(0, 10); };
+  const w7 = daily.filter((d) => d.day > back(7)), tx7 = sum(w7, 'store_tx');
+  const lw = daily.find((d) => d.day === back(7));
+  const est = (d) => d.gm == null ? null : +d.gm + 0.4 * ((+d.line_sales || 0) - (+d.gm_sales || 0));
+  const mg = cur.filter((d) => d.gm != null);
+  const T = [['store', '서촌 매장', 10000000], ['cafe24', '자사몰', 3000000], ['smart', '스마트스토어', 1500000], ['ohouse', '오늘의집', 500000]];
+  const pace = elapsed / bdays;
+  return {
+    y, daily, cur, month, pm, bdays, elapsed, pace, mtd: sum(cur, 'total'), mstore: sum(cur, 'store'), monline: sum(cur, 'online'), mcarpet: sum(cur, 'carpet'),
+    pmCarpet: sum(prevAll, 'carpet'), wow: lw && lw.total ? (y.total - lw.total) / lw.total : null, tx7, ticket7: tx7 ? Math.round(sum(w7, 'store') / tx7) : null,
+    gm: est(y), gmRate: est(y) != null && +y.line_sales ? est(y) / +y.line_sales : null, mgm: sum(mg, 'line_sales') ? mg.reduce((s, d) => s + est(d), 0) / sum(mg, 'line_sales') : null,
+    ch: T.map(([k, n, t]) => ({ k, n, t, mtd: sum(cur, k), prev: sum(prev, k) })),
+    need: bdays > elapsed ? Math.round((15000000 - sum(cur, 'total')) / (bdays - elapsed)) : 0,
+  };
+}
+const progBar = (label, val, target, pace) => {
+  const r = target ? val / target : 0, w = Math.min(100, r * 100);
+  return `<div class="prog"><div class="row"><span>${label}</span><b>${won(val)} <span class="muted small">/ ${man(target)} · ${pct(r)}</span></b></div><div class="bar"><i class="${r >= 1 ? 'ok' : ''}" style="width:${w}%"></i>${pace != null ? `<em style="left:${Math.min(100, pace * 100)}%"></em>` : ''}</div></div>`;
+};
+const hbars = (list, lab, val, txt) => { const mx = Math.max(...list.map(val), 0) || 1; return list.map((r) => `<div class="hb"><span class="lbl">${esc(lab(r))}</span><span class="track"><i style="width:${val(r) / mx * 100}%"></i></span><span class="val">${txt(r)}</span></div>`).join(''); };
+
+/* ---------- 홈 ---------- */
+function drawHome(el) {
+  const s = rep('summary'), c = calc(), al = rep('alerts').rows || [];
+  const today = kst(), wk = mondayOf(today);
+  const tasks = weekTasks(wk);
+  const posts = rows('posts').sort((a, b) => (b.data.date || '').localeCompare(a.data.date || '')).slice(0, 3);
+  const nb = al.filter((a) => a.level === '긴급').length, nw = al.filter((a) => a.level === '주의').length;
+  el.innerHTML = `
+  <div class="card lines">${(s.lines || ['아직 일일보고가 없습니다.']).map((l) => `<p>${esc(l)}</p>`).join('')}
+    ${(s.notes || []).length ? `<div class="note">확인: ${esc(s.notes.join(' / '))}</div>` : ''}
+    <div class="muted small" style="margin-top:6px">이대리 · ${s.updatedAt ? s.updatedAt.slice(5, 16).replace('T', ' ') + ' 갱신' : ''}</div></div>
+  ${c ? `<h2>${+c.month.slice(5)}월 목표 진척<small>영업일 ${c.elapsed}/${c.bdays}일 · 세로선 = 오늘까지 페이스</small></h2>
+  <div class="card">${progBar('전체 (카페트 제외)', c.mtd, 15000000, c.pace)}${progBar('매장', c.mstore, 10000000, c.pace)}${progBar('온라인 3채널', c.monline, 5000000, c.pace)}
+  <div class="muted small">남은 영업일 하루 ${won(c.need)} 필요${c.mcarpet ? ` · 카페트(별도) ${won(c.mcarpet)}` : ''}</div></div>` : ''}
+  <h2>오늘 확인할 것<small>전일 판매 기준</small></h2>
+  <div class="card">${al.length ? `<div class="chips" style="margin-bottom:6px">${nb ? `<span class="chip bad">긴급 · 품절 ${nb}</span>` : ''}${nw ? `<span class="chip warn">주의 · 품절 임박 ${nw}</span>` : ''}</div>` + al.slice(0, 5).map((a) => `<div class="small">${a.level === '긴급' ? '🔴' : '🟠'} ${esc(a.item)} <span class="muted">재고 ${a.stock}개</span></div>`).join('') + (al.length > 5 ? `<div class="small muted">외 ${al.length - 5}건 — 매출 탭</div>` : '') : '<div class="empty">전일 판매로 품절되거나 3개 이하로 내려온 상품이 없습니다.</div>'}</div>
+  <h2>이번 주 업무<small>${md(wk)}~ · 체크하면 완료</small></h2>
+  <div class="card">${tasks.length ? tasks.map(taskRow).join('') : '<div class="empty">이번 주에 배정된 업무가 없습니다.</div>'}</div>
+  <h2>최근 직원 보고<small><button class="linkbtn" data-go2="posts">전체 보기</button></small></h2>
+  ${posts.map(postCard).join('') || '<div class="card empty">아직 보고가 없습니다.</div>'}`;
+  bindTasks(el); el.querySelectorAll('[data-go2]').forEach((b) => b.onclick = () => { page = b.dataset.go2; render(); window.scrollTo(0, 0); });
+}
+
+/* ---------- 매출 ---------- */
+function drawSales(el) {
+  const c = calc(), s = rep('summary');
+  if (!c) { el.innerHTML = '<div class="card empty">아직 매출 자료가 없습니다.</div>'; return; }
+  const y = c.y, top = rep('top').rows || [], al = rep('alerts').rows || [], cat = (rep('category').rows || []).filter((r) => r.day === y.day), band = (rep('price_band').rows || []).filter((r) => r.day === y.day);
+  const tw = (rep('ticket_weekly').rows || []).slice(-4).reverse(), goals = rep('goals').rows || [];
+  const last14 = c.daily.slice(-14);
+  const mx = Math.max(...last14.map((d) => d.total), 1);
+  const W = 600, H = 120, bw = W / last14.length;
+  const spark = `<svg class="spark" viewBox="0 0 ${W} ${H + 18}" preserveAspectRatio="none" role="img" aria-label="최근 14일 매출">${last14.map((d, i) => {
+    const hs = d.store / mx * H, ho = d.online / mx * H; const x = i * bw + bw * .18, w = bw * .64;
+    return `<rect x="${x}" y="${H - hs}" width="${w}" height="${hs}" fill="#1F5A36" rx="2"/><rect x="${x}" y="${H - hs - ho}" width="${w}" height="${ho}" fill="#8FB59A" rx="2"/><text x="${x + w / 2}" y="${H + 14}" font-size="11" text-anchor="middle" fill="#6B7068">${+d.day.slice(8)}</text>`; }).join('')}</svg>`;
+  el.innerHTML = `
+  <h2 style="margin-top:4px">${md(y.day)} 전일 실적<small>페이히어·김사원 판매이력</small></h2>
+  <div class="kpis">
+    <div class="kpi"><div class="k">전일 매출</div><div class="v">${won(y.total)}</div><div class="s">지난주 같은 요일 대비 ${c.wow == null ? '—' : (c.wow >= 0 ? '+' : '') + pct(c.wow)}</div></div>
+    <div class="kpi"><div class="k">매장</div><div class="v">${won(y.store)}</div><div class="s">${y.closed ? '휴무' : `결제 ${y.store_tx}건`}</div></div>
+    <div class="kpi"><div class="k">온라인</div><div class="v">${won(y.online)}</div><div class="s">자사몰 ${man(y.cafe24)} · 스마트 ${man(y.smart)} · 오집 ${man(y.ohouse)}</div></div>
+    <div class="kpi"><div class="k">매출총이익(추정)</div><div class="v">${won(c.gm)}</div><div class="s">마진율 ${pct(c.gmRate)} · 이달 ${pct(c.mgm)}</div></div>
+  </div>
+  <div class="card" style="margin-top:8px"><div class="small muted">최근 7일 매장 결제 <b style="color:var(--ink)">${c.tx7}건</b> · 객단가 <b style="color:var(--ink)">${won(c.ticket7)}</b></div></div>
+  <h2>채널별 목표 페이스<small>목표 달성 전 빨강 · 달성 후 초록</small></h2>
+  <div class="card">${c.ch.map((r) => progBar(r.n, r.mtd, r.t, c.pace) + `<div class="muted small" style="margin:-6px 0 6px">지난달 같은 기간 ${won(r.prev)}</div>`).join('')}
+    <div class="prog"><div class="row"><span>카페트(별도)</span><b>${won(c.mcarpet)}</b></div><div class="muted small">지난달 ${won(c.pmCarpet)}</div></div></div>
+  <h2>최근 14일<small>진녹색 매장 · 연녹색 온라인</small></h2>
+  <div class="card">${spark}</div>
+  <h2>어제 팔린 상품 TOP 10</h2>
+  <div class="card">${top.length ? `<table><thead><tr><th>상품</th><th>채널</th><th class="n">수량</th><th class="n">금액</th><th class="n">마진</th></tr></thead><tbody>${top.map((r) => `<tr><td>${esc(r.product)}<div class="muted small">${esc(r.brand)}</div></td><td>${esc(r.channel)}</td><td class="n">${r.qty}</td><td class="n">${won(r.amount)}</td><td class="n ${r.margin != null && r.margin < .4 ? '' : 'muted'}" style="${r.margin != null && r.margin < .4 ? 'color:var(--warn)' : ''}">${r.margin == null ? '40%(추정)' : pct(r.margin, 0)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">전일 상품별 판매가 아직 반영되지 않았습니다(판매 파일 미입력 또는 판매 없음).</div>'}</div>
+  <h2>어제 무엇이 팔렸나</h2>
+  <div class="card"><div class="small muted" style="margin-bottom:4px">매장 카테고리</div>${cat.length ? hbars(cat.sort((a, b) => b.sales - a.sales), (r) => r.category, (r) => r.sales, (r) => won(r.sales)) : '<div class="empty">반영 전</div>'}
+    <div class="small muted" style="margin:10px 0 4px">가격대(4채널)</div>${band.length ? hbars(band, (r) => r.band, (r) => r.sales, (r) => `${won(r.sales)} · ${r.lines}줄`) : '<div class="empty">반영 전</div>'}</div>
+  <h2>오늘 확인할 것<small>품절=긴급 · 3개 이하=주의</small></h2>
+  <div class="card">${al.length ? `<table><thead><tr><th></th><th>상품</th><th class="n">전일 판매</th><th class="n">현재 재고</th></tr></thead><tbody>${al.map((a) => `<tr><td><span class="chip ${a.level === '긴급' ? 'bad' : 'warn'}">${a.level}</span></td><td>${esc(a.item)}<div class="muted small">${esc(a.brand)}</div></td><td class="n muted">${a.sold}개</td><td class="n" style="${a.stock <= 0 ? 'color:var(--bad)' : ''}">${a.stock}개</td></tr>`).join('')}</tbody></table>` : '<div class="empty">전일 판매로 품절되거나 3개 이하로 내려온 상품이 없습니다.</div>'}</div>
+  <h2>주간 매장 결제·객단가<small>매주 화요일 수집 (화~일)</small></h2>
+  <div class="card">${tw.length ? `<table><thead><tr><th>주</th><th class="n">매출</th><th class="n">결제</th><th class="n">객단가</th></tr></thead><tbody>${tw.map((r) => `<tr><td>${md(r.week_start)}~${md(r.week_end)}</td><td class="n">${won(r.store)}</td><td class="n">${r.tx}건</td><td class="n">${won(r.ticket)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">수집 전</div>'}</div>
+  <h2>숫자 목표</h2>
+  <div class="card">${goals.map((g) => { const r = g.target ? g.current / g.target : 0; return `<div class="prog"><div class="row"><span>${esc(g.title)}</span><b>${g.unit === '원' ? won(g.current) : g.current + g.unit}</b></div><div class="bar"><i class="${r >= 1 ? 'ok' : ''}" style="width:${Math.min(100, r * 100)}%"></i></div><div class="muted small">${esc(g.note || '')}</div></div>`; }).join('')}</div>
+  <div class="muted small" style="text-align:center;margin-top:10px">이대리 · ${s.updatedAt ? s.updatedAt.slice(0, 16).replace('T', ' ') : ''} 갱신</div>`;
+}
+
+/* ---------- 업무 ---------- */
+const STATUS = ['대기', '진행', '완료', '보류', '이월'];
+function curMonth() { return kst().slice(0, 7); }
+function effWeek(t, wk) { // 기한이 그달 말일인 업무 = 한 달 내내 하는 상시 업무
+  if (t.due && +t.due.slice(8) === lastDay(t.due) && !['완료', '보류'].includes(t.status) && wk <= t.due) return { week: wk, always: true };
+  return { week: t.week, always: false };
+}
+function weekTasks(wk) {
+  return rows('tasks').map((r) => ({ id: r.id, ...r.data })).filter((t) => t.month === curMonth() && t.status !== '이월')
+    .map((t) => ({ ...t, ...effWeek(t, wk) })).filter((t) => t.week === wk).sort((a, b) => (a.status === '완료') - (b.status === '완료') || (a.due || '').localeCompare(b.due || ''));
+}
+function taskRow(t) {
+  const late = t.status !== '완료' && t.status !== '보류' && t.due && t.due < kst();
+  return `<div class="task ${t.status === '완료' ? 'done' : ''}" data-id="${esc(t.id)}"><input type="checkbox" ${t.status === '완료' ? 'checked' : ''} aria-label="완료"><div><div class="t">${t.always ? '<span class="badge">상시</span> ' : ''}${esc(t.title)}</div>
+  <div class="m"><span>${esc(t.owner)}</span><span class="${late ? 'late' : ''}">기한 ${md(t.due)}${late ? ' · 지남' : ''}</span>${t.category ? `<span>${esc(t.category)}</span>` : ''}<select aria-label="상태">${STATUS.map((s) => `<option ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+  ${t.result ? `<div class="small" style="margin-top:4px">결과 · ${esc(t.result)}</div>` : ''}</div></div>`;
+}
+function bindTasks(el) {
+  el.querySelectorAll('.task').forEach((row) => {
+    const id = row.dataset.id, cur = () => DB.tasks[id].data;
+    const set = async (status) => { const d = { ...cur(), status, doneAt: status === '완료' ? new Date().toISOString() : '' }; if (await save('tasks', id, d)) render(); };
+    row.querySelector('input').onchange = (e) => set(e.target.checked ? '완료' : '진행');
+    row.querySelector('select').onchange = (e) => set(e.target.value);
+  });
+}
+function drawWork(el) {
+  const m = curMonth(), wk = mondayOf(kst());
+  const goals = rows('goals').filter((g) => g.data.month === m).sort((a, b) => (a.data.createdAt || '').localeCompare(b.data.createdAt || ''));
+  const all = rows('tasks').map((r) => ({ id: r.id, ...r.data })).filter((t) => t.month === m).map((t) => ({ ...t, ...effWeek(t, wk) }));
+  const views = ['이번 주', '전체', '구민영 대표', '송매니저', '공동'];
+  let list = taskView === '이번 주' ? all.filter((t) => t.week === wk) : taskView === '전체' ? all : all.filter((t) => t.owner === taskView);
+  list.sort((a, b) => (a.status === '완료') - (b.status === '완료') || (a.due || '').localeCompare(b.due || ''));
+  const done = all.filter((t) => t.status === '완료').length, live = all.filter((t) => t.status !== '보류').length;
+  const mon = DB.months?.[m]?.data || { month: m };
+  el.innerHTML = `
+  <h2 style="margin-top:4px">이달의 핵심 목표<small>${+m.slice(5)}월 · ${goals.length}개</small></h2>
+  ${goals.map((g, i) => `<div class="card goal" data-id="${g.id}"><div class="no">${i + 1}</div><div><div class="t">${esc(g.data.title)}</div><div class="ms">측정 · ${esc(g.data.measure)}</div>
+    <div class="field" style="margin:8px 0 0"><span>결과</span><textarea data-goal="${g.id}" placeholder="월말에 적어 주세요">${esc(g.data.result || '')}</textarea></div></div></div>`).join('') || '<div class="card empty">이달 목표가 없습니다.</div>'}
+  <h2>업무 리스트<small>완료 ${done}/${live}</small></h2>
+  <div class="seg">${views.map((v) => `<button aria-pressed="${v === taskView}" data-v="${v}">${v}</button>`).join('')}</div>
+  <div class="card">${list.length ? list.map(taskRow).join('') : '<div class="empty">해당 업무가 없습니다.</div>'}</div>
+  <details class="card"><summary style="cursor:pointer;font-weight:500">＋ 업무 추가</summary>
+    <div style="margin-top:10px"><div class="field"><span>업무</span><input type="text" id="n-title"></div>
+    <div class="field"><span>담당</span><select class="in" id="n-owner"><option>구민영 대표</option><option>송매니저</option><option>공동</option></select></div>
+    <div class="field"><span>분야</span><select class="in" id="n-cat"><option>매장 운영</option><option>온라인</option><option>상품·발주</option><option>마케팅</option><option>기타</option></select></div>
+    <div class="field"><span>기한 (말일로 정하면 한 달 내내 하는 상시 업무)</span><input type="date" id="n-due"></div>
+    <button class="btn" id="n-add">추가</button></div></details>
+  <h2>월말 회고<small>회의일 ${md(mon.meetingDate || '')}</small></h2>
+  <div class="card">${[['good', '잘한 점'], ['bad', '아쉬운 점'], ['next', '다음 달에 이어갈 것']].map(([k, l]) => `<div class="field"><span>${l}</span><textarea data-retro="${k}">${esc(mon[k] || '')}</textarea></div>`).join('')}<div class="saved" id="r-saved"></div></div>`;
+  bindTasks(el);
+  el.querySelectorAll('.seg button').forEach((b) => b.onclick = () => { taskView = b.dataset.v; render(); });
+  el.querySelectorAll('[data-goal]').forEach((t) => t.onchange = async () => { const id = t.dataset.goal; await save('goals', id, { ...DB.goals[id].data, result: t.value }); });
+  el.querySelectorAll('[data-retro]').forEach((t) => t.onchange = async () => { const d = { ...(DB.months?.[m]?.data || { month: m }), [t.dataset.retro]: t.value, updatedAt: new Date().toISOString() }; if (await save('months', m, d)) $('#r-saved').textContent = '저장했습니다'; });
+  $('#n-add').onclick = async () => {
+    const title = $('#n-title').value.trim(), due = $('#n-due').value; if (!title || !due) { alert('업무와 기한을 적어 주세요.'); return; }
+    const id = 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    if (await save('tasks', id, { title, owner: $('#n-owner').value, category: $('#n-cat').value, priority: '상', level: '월간', month: due.slice(0, 7), due, week: mondayOf(due), status: '대기', result: '', doneAt: '', createdAt: new Date().toISOString() })) render();
+  };
+}
+
+/* ---------- 매장 입력 ---------- */
+const AGES = ['10대', '20대 초중반', '20대 후반', '30대', '40대', '50대 이상'];
+function drawStore(el) {
+  const d = storeDate, cur = DB.storelog?.[d]?.data || {};
+  const v = { visitors: 0, buyers: 0, ages: {}, buyAges: {}, items: '', memo: '', ...cur };
+  const m = d.slice(0, 7), logs = rows('storelog').filter((r) => r.id.startsWith(m)).sort((a, b) => b.id.localeCompare(a.id));
+  const tot = logs.reduce((s, r) => ({ v: s.v + (+r.data.visitors || 0), b: s.b + (+r.data.buyers || 0) }), { v: 0, b: 0 });
+  const ageTot = {}; logs.forEach((r) => AGES.forEach((a) => ageTot[a] = (ageTot[a] || 0) + (+(r.data.ages || {})[a] || 0)));
+  const carpets = rows('carpet').filter((r) => r.data.day?.startsWith(m));
+  el.innerHTML = `
+  <h2 style="margin-top:4px">방문 고객 기록<small>11월 목표 · 오프라인 고객 정보 수집</small></h2>
+  <div class="card">
+    <div class="field"><span>날짜</span><input type="date" id="s-date" value="${d}"></div>
+    <div class="counter"><span>방문객 수</span><span class="ctl"><button data-k="visitors" data-d="-1">−</button><b>${v.visitors}</b><button data-k="visitors" data-d="1">＋</button></span></div>
+    <div class="counter"><span>구매 고객 수</span><span class="ctl"><button data-k="buyers" data-d="-1">−</button><b>${v.buyers}</b><button data-k="buyers" data-d="1">＋</button></span></div>
+    <div class="small muted" style="margin:12px 0 2px">연령대별 방문 (보이는 대로)</div>
+    ${AGES.map((a) => `<div class="counter"><span>${a}</span><span class="ctl"><button data-age="${a}" data-d="-1">−</button><b>${+(v.ages[a] || 0)}</b><button data-age="${a}" data-d="1">＋</button></span></div>`).join('')}
+    <div class="field" style="margin-top:12px"><span>많이 보거나 산 상품 (연령대와 함께)</span><textarea id="s-items" placeholder="예) 20대 초반 2명 — 청귤보이차 티백, 코스터 구매">${esc(v.items)}</textarea></div>
+    <div class="field"><span>특이사항 (날씨·행사·문의 등)</span><textarea id="s-memo">${esc(v.memo)}</textarea></div>
+    <div class="saved" id="s-saved">${cur.updatedAt ? '저장됨 · ' + cur.updatedAt.slice(11, 16) + ' ' + esc(cur.by || '') : ''}</div>
+  </div>
+  <h2>${+m.slice(5)}월 누계<small>${logs.length}일 기록</small></h2>
+  <div class="card"><div class="kpis"><div class="kpi"><div class="k">방문객</div><div class="v">${tot.v}명</div></div><div class="kpi"><div class="k">구매 고객</div><div class="v">${tot.b}명</div><div class="s">구매 전환 ${tot.v ? pct(tot.b / tot.v, 0) : '—'}</div></div></div>
+    <div style="margin-top:10px">${hbars(AGES.map((a) => ({ a, n: ageTot[a] || 0 })), (r) => r.a, (r) => r.n, (r) => r.n + '명')}</div></div>
+  <h2>카페트 판매 기록<small>매장 매출에서 빼고 별도 표시</small></h2>
+  <div class="card"><div class="field"><span>판매일</span><input type="date" id="c-day" value="${kst()}"></div><div class="field"><span>금액(원)</span><input type="number" inputmode="numeric" id="c-amt"></div>
+    <div class="field"><span>채널</span><select class="in" id="c-ch"><option value="store">매장(페이히어 결제)</option><option value="online">온라인</option></select></div><div class="field"><span>메모</span><input type="text" id="c-memo"></div>
+    <button class="btn ghost" id="c-add">카페트 판매 추가</button>
+    ${carpets.length ? `<table style="margin-top:10px"><tbody>${carpets.sort((a, b) => b.data.day.localeCompare(a.data.day)).map((r) => `<tr><td>${md(r.data.day)}</td><td>${r.data.channel === 'store' ? '매장' : '온라인'}</td><td class="n">${won(r.data.amount)}</td><td class="muted small">${esc(r.data.memo || '')}</td></tr>`).join('')}</tbody></table>` : ''}</div>`;
+  let timer; const persist = () => { clearTimeout(timer); timer = setTimeout(async () => { const data = { ...v, items: $('#s-items').value, memo: $('#s-memo').value, by: ME.name, updatedAt: new Date(Date.now() + 9 * 3600e3).toISOString() }; if (await save('storelog', d, data)) $('#s-saved').textContent = '저장됨 · ' + data.updatedAt.slice(11, 16) + ' ' + ME.name; }, 500); };
+  el.querySelectorAll('[data-k]').forEach((b) => b.onclick = () => { v[b.dataset.k] = Math.max(0, (+v[b.dataset.k] || 0) + +b.dataset.d); b.parentNode.querySelector('b').textContent = v[b.dataset.k]; persist(); });
+  el.querySelectorAll('[data-age]').forEach((b) => b.onclick = () => { const a = b.dataset.age; v.ages = { ...v.ages, [a]: Math.max(0, (+v.ages[a] || 0) + +b.dataset.d) }; b.parentNode.querySelector('b').textContent = v.ages[a]; persist(); });
+  $('#s-items').oninput = persist; $('#s-memo').oninput = persist;
+  $('#s-date').onchange = (e) => { storeDate = e.target.value || kst(); render(); };
+  $('#c-add').onclick = async () => { const amount = +$('#c-amt').value, day = $('#c-day').value; if (!amount || !day) { alert('판매일과 금액을 적어 주세요.'); return; }
+    const id = day + '-' + Date.now().toString(36); if (await save('carpet', id, { day, amount, channel: $('#c-ch').value, tx: 1, memo: $('#c-memo').value, by: ME.name })) render(); };
+}
+
+/* ---------- 보고함 ---------- */
+function postCard(p) {
+  const d = p.data;
+  return `<div class="card post"><div class="who"><b style="color:var(--ink)">${esc(d.staff)}</b><span>${md(d.date)}</span>${d.tag ? `<span class="badge">${esc(d.tag)}</span>` : ''}</div>
+  <div class="ttl">${esc(d.title)}</div><ul>${(d.lines || []).map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
+  ${(d.asks || []).length ? `<div class="ask"><b>대표님 결정 대기</b><ul>${d.asks.map((a) => `<li>${esc(a)}</li>`).join('')}</ul></div>` : ''}
+  ${d.link ? `<div style="margin-top:6px"><a class="linkbtn" href="${esc(d.link)}" target="_blank" rel="noopener">자세히 보기</a></div>` : ''}</div>`;
+}
+function drawPosts(el) {
+  const staff = ['전체', '이대리', '김사원', '송부장', '정과장', '구차장'];
+  const list = rows('posts').filter((p) => postFilter === '전체' || p.data.staff === postFilter).sort((a, b) => (b.data.date || '').localeCompare(a.data.date || '') || b.id.localeCompare(a.id));
+  el.innerHTML = `<h2 style="margin-top:4px">직원 보고함<small>${list.length}건</small></h2>
+  <div class="seg">${staff.map((s) => `<button aria-pressed="${s === postFilter}" data-s="${s}">${s}</button>`).join('')}</div>
+  ${list.map(postCard).join('') || '<div class="card empty">보고가 없습니다.</div>'}`;
+  el.querySelectorAll('.seg button').forEach((b) => b.onclick = () => { postFilter = b.dataset.s; render(); });
+}
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { $('#app').hidden = true; $('#login').hidden = false; } });
+boot();
+</script>
+</body>
+</html>
