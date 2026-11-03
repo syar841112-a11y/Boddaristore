@@ -31,7 +31,8 @@ header.top .who button { background: none; border: 0; color: var(--muted); text-
 h2 { font-family: var(--display); font-size: 19px; color: var(--green); margin: 22px 0 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 h2 small { font-family: var(--body); font-size: 12px; color: var(--muted); font-weight: 400; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
-.lines p { margin: 0 0 4px; } .lines p:first-child { font-weight: 700; font-size: 16px; }
+.brief p { margin: 0 0 2px; font-variant-numeric: tabular-nums; } .brief p.big { font-weight: 700; font-size: 17px; margin-bottom: 4px; } .brief p.gap { margin-top: 12px; }
+.hero { display: block; width: 100%; height: auto; border-radius: 14px; margin: 0 0 4px; }
 .muted { color: var(--muted); } .small { font-size: 12.5px; }
 .note { font-size: 12.5px; background: #FBF3E6; border: 1px solid #EBD7B4; color: #7A4B12; border-radius: 10px; padding: 8px 10px; margin-top: 8px; }
 .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -247,10 +248,18 @@ function drawHome(el) {
   const tasks = weekTasks(wk);
   const posts = rows('posts').sort((a, b) => (b.data.date || '').localeCompare(a.data.date || '')).slice(0, 3);
   const nb = al.filter((a) => a.level === '긴급').length, nw = al.filter((a) => a.level === '주의').length;
+  const yd = c && c.y, wd = yd ? md(yd.day) : '';
   el.innerHTML = `
-  <div class="card lines">${(s.lines || ['아직 일일보고가 없습니다.']).map((l) => `<p>${esc(l)}</p>`).join('')}
-    ${(s.notes || []).length ? `<div class="note">확인: ${esc(s.notes.join(' / '))}</div>` : ''}
-    <div class="muted small" style="margin-top:6px">이대리 · ${s.updatedAt ? s.updatedAt.slice(5, 16).replace('T', ' ') + ' 갱신' : ''}</div></div>
+  <img class="hero" src="store.jpg" alt="보따리상점 매장">
+  <h2>전일 영업 보고</h2>
+  <div class="card brief">${c ? `
+    <p class="big">${wd} 매출 ${won(yd.total)}${yd.closed ? ' <span class="muted small">휴무</span>' : ''}</p>
+    <p>매장: ${won(yd.store)}(${yd.store_tx}건)</p>
+    <p>온라인: ${won(yd.online)}${yd.online_tx != null ? `(${yd.online_tx}건)` : ''}</p>
+    <p class="gap">${+c.month.slice(5)}월 누적 ${won(c.mtd)} <span class="muted small">(목표 1,500만원의 ${pct(c.mtd / 15000000)})</span></p>
+    <p>매장 ${pct(c.mstore / 10000000)} · 온라인 ${pct(c.monline / 5000000)}</p>
+    <p>남은 영업일 하루 ${won(c.need)} 필요</p>
+    ${(s.notes || []).length ? `<p class="muted small gap">※ ${esc(s.notes.join(' / '))}</p>` : ''}` : '<p>아직 일일보고가 없습니다.</p>'}</div>
   ${c ? `<h2>${+c.month.slice(5)}월 목표 진척<small>영업일 ${c.elapsed}/${c.bdays}일 · 세로선 = 오늘까지 페이스</small></h2>
   <div class="card">${progBar('전체 (카페트 제외)', c.mtd, 15000000, c.pace)}${progBar('매장', c.mstore, 10000000, c.pace)}${progBar('온라인 3채널', c.monline, 5000000, c.pace)}
   <div class="muted small">남은 영업일 하루 ${won(c.need)} 필요${c.mcarpet ? ` · 카페트(별도) ${won(c.mcarpet)}` : ''}</div></div>` : ''}
