@@ -99,6 +99,7 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
 .empty { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
 .spark { width: 100%; height: 120px; display: block; }
 [hidden] { display: none !important; }
+.bf .bfh { font-weight: 700; font-size: 14px; margin: 14px 0 6px; } .bf .bfh:first-child { margin-top: 0; } .bf p { margin: 4px 0; } .bfw { padding: 5px 0; font-size: 13.5px; border-bottom: 1px solid var(--line); } .bfw:last-child { border-bottom: 0; } .tx-bad { color: var(--bad); } .tx-warn { color: var(--warn); } .tx-ok { color: var(--ok); }
 .arow { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; } .arow:last-of-type { border-bottom: 0; } .arow .t { overflow-wrap: anywhere; }
 /* 노트북·큰 화면 (900px 이상): 위쪽 탭, 사진 가로 띠, 홈 2단 */
 @media (min-width: 900px) {
@@ -258,6 +259,41 @@ const progBar = (label, val, target, pace) => {
 const hbars = (list, lab, val, txt) => { const mx = Math.max(...list.map(val), 0) || 1; return list.map((r) => `<div class="hb"><span class="lbl">${esc(lab(r))}</span><span class="track"><i style="width:${val(r) / mx * 100}%"></i></span><span class="val">${txt(r)}</span></div>`).join(''); };
 
 /* ---------- 홈 ---------- */
+/* 오늘의 경영 브리핑: ① 손익분기 ② 소진 임박 ③ 날씨(Open-Meteo, 서촌) */
+let wx = null, wxAt = 0;
+function loadWx() {
+  if (wx && Date.now() - wxAt < 30 * 60e3) return;
+  wxAt = Date.now();
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5797&longitude=126.9700&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=2')
+    .then((r) => r.json()).then((j) => { wx = j.daily; if (page === 'home') render(); }).catch(() => { wx = { error: 1 }; if (page === 'home') render(); });
+}
+const wxName = (c) => c === 0 ? '맑음' : c <= 3 ? '구름' : c <= 48 ? '안개' : c <= 67 || (c >= 80 && c <= 82) ? '비' : c <= 77 || c === 85 || c === 86 ? '눈' : '뇌우';
+function wxLine(i, label) {
+  const day = wx.time[i], mm = wx.precipitation_sum[i] || 0, pp = wx.precipitation_probability_max[i];
+  const closed = new Date(day + 'T00:00:00+09:00').getDay() === 1;
+  const base = `${label} ${md(day)} ${wxName(wx.weather_code[i])} ${Math.round(wx.temperature_2m_min[i])}~${Math.round(wx.temperature_2m_max[i])}°${mm >= 0.1 ? ` · 비 ${mm.toFixed(mm < 10 ? 1 : 0)}mm` : ''}${pp != null ? ` (${pp}%)` : ''}`;
+  let act, cls = '';
+  if (closed) act = '매장 휴무일';
+  else if (mm >= 10) { act = '큰비 — 매장 매출 평균 약 47% 감소, 인스타 스토리·문자로 온라인 유도'; cls = 'bad'; }
+  else if (mm >= 1) { act = '약한 비 — 매장 영향 작음(평균 −10%)'; cls = 'warn'; }
+  else act = '매장 영향 없음';
+  return `<div class="bfw"><div>${base}</div><div class="small ${cls ? 'tx-' + cls : 'muted'}">→ ${act}</div></div>`;
+}
+function briefingHtml(bf) {
+  loadWx();
+  const b = bf.bep, ro = bf.runout || [];
+  if (!b) return '<div class="empty">내일 일일보고부터 표시됩니다.</div>';
+  const pace = b.bdays ? b.elapsed / b.bdays : null;
+  return `<div class="bfh">① 손익분기</div>
+  ${progBar('손익분기 매출', b.mtd, b.bep, pace)}
+  <p class="small">남은 영업일 ${b.left}일 · 하루 <b>${won(b.need)}</b> 팔아야 손익분기</p>
+  <p class="small">지금 속도면 월말 ${man(b.proj)}원 · 영업손익 <b class="${b.op_est < 0 ? 'tx-bad' : 'tx-ok'}">${b.op_est < 0 ? '−' : '+'}${man(Math.abs(b.op_est))}원</b> <span class="muted">(마진 ${Math.round(b.gm * 1000) / 10}% · 판관비 ${man(b.fixed)} 기준)</span></p>
+  <div class="bfh">② 소진 임박 TOP5 <span class="muted small">최근 ${bf.window_days}일 판매속도</span></div>
+  ${ro.length ? ro.map((r) => `<div class="arow"><span class="chip ${r.days_left <= 14 ? 'bad' : r.days_left <= 30 ? 'warn' : ''}">${md(r.out_date)}</span><span class="t">${esc(r.item)}<span class="muted small"> · ${esc(r.brand)}</span></span><span class="muted small">재고 ${r.stock} · 주 ${r.per_week}개</span></div>`).join('') + '<div class="small muted" style="margin-top:4px">날짜 = 이 속도로 팔 때 재고가 바닥나는 날 · 30일 이내면 발주 검토</div>' : '<div class="empty">30일 안에 바닥날 상품이 없습니다.</div>'}
+  <div class="bfh">③ 날씨와 매장</div>
+  ${!wx ? '<div class="small muted">예보 불러오는 중…</div>' : wx.error ? '<div class="small muted">예보를 불러오지 못했습니다.</div>' : wxLine(0, '오늘') + wxLine(1, '내일')}`;
+}
+
 const sinceTxt = (a) => a.since ? `${+a.since.slice(5, 7)}/${+a.since.slice(8)}부터` : '';
 const alertRow = (a) => `<div class="arow"><span class="chip ${a.level === '긴급' ? 'bad' : 'warn'}">${a.level === '긴급' ? '품절' : '재고 ' + a.stock}</span><span class="t">${esc(a.item)}${a.new ? ' <span class="badge">신규</span>' : ''}</span><span class="muted small">${sinceTxt(a)}</span></div>`;
 function drawHome(el) {
@@ -265,7 +301,7 @@ function drawHome(el) {
   const today = kst(), wk = mondayOf(today);
   const tasks = weekTasks(wk);
   const goals = rows('goals').filter((g) => g.data.month === today.slice(0, 7)).sort((a, b) => (a.data.createdAt || '').localeCompare(b.data.createdAt || ''));
-  const posts = rows('posts').sort((a, b) => (b.data.date || '').localeCompare(a.data.date || '')).slice(0, 3);
+  const bf = rep('briefing').rows || {};
   const nb = al.filter((a) => a.level === '긴급').length, nw = al.filter((a) => a.level === '주의').length;
   const yd = c && c.y, wd = yd ? md(yd.day) : '';
   el.innerHTML = `
@@ -284,14 +320,14 @@ function drawHome(el) {
   <div class="card">${progBar('전체 (카페트 제외)', c.mtd, 15000000, c.pace)}${progBar('매장', c.mstore, 10000000, c.pace)}${progBar('온라인 3채널', c.monline, 5000000, c.pace)}
   <div class="muted small">남은 영업일 하루 ${won(c.need)} 필요${c.mcarpet ? ` · 카페트(별도) ${won(c.mcarpet)}` : ''}</div></div>` : ''}
   <h2>오늘 확인할 것<small>재입고 전까지 계속 표시</small></h2>
-  <div class="card">${al.length ? `<div class="chips" style="margin-bottom:8px">${nb ? `<span class="chip bad">긴급 · 품절 ${nb}</span>` : ''}${nw ? `<span class="chip warn">주의 · 3개 이하 ${nw}</span>` : ''}${al.some((a) => a.new) ? `<span class="chip">신규 ${al.filter((a) => a.new).length}</span>` : ''}</div>` + al.slice(0, 8).map(alertRow).join('') + (al.length > 8 ? `<div class="small muted" style="margin-top:6px">외 ${al.length - 8}건 — 매출 탭에서 전체 보기</div>` : '') : '<div class="empty">재고 3개 이하이거나 품절된 상품이 없습니다.</div>'}</div>
+  <div class="card">${al.length ? `<div class="chips" style="margin-bottom:8px">${nb ? `<span class="chip bad">긴급 · 품절 ${nb}</span>` : ''}${nw ? `<span class="chip warn">주의 · 3개 이하 ${nw}</span>` : ''}${al.some((a) => a.new) ? `<span class="chip">신규 ${al.filter((a) => a.new).length}</span>` : ''}</div>` + al.slice(0, 10).map(alertRow).join('') + (al.length > 10 ? `<div class="small muted" style="margin-top:6px">외 ${al.length - 10}건 — 매출 탭에서 전체 보기</div>` : '') : '<div class="empty">재고 3개 이하이거나 품절된 상품이 없습니다.</div>'}</div>
   </div><div class="col">
   <h2>이달의 목표<small>${+today.slice(5, 7)}월 · ${goals.length}개</small></h2>
   <div class="card">${goals.length ? goals.map((g, i) => `<div class="goal" style="${i ? 'margin-top:12px' : ''}"><div class="no">${i + 1}</div><div><div class="t">${esc(g.data.title)}</div><div class="ms">측정 · ${esc(g.data.measure)}</div>${g.data.result ? `<div class="small" style="margin-top:2px">결과 · ${esc(g.data.result)}</div>` : ''}</div></div>`).join('') : '<div class="empty">이달 목표가 없습니다. 업무 탭에서 추가해 주세요.</div>'}</div>
   <h2>이번 주 업무<small>${md(wk)}~ · 체크하면 완료</small></h2>
   <div class="card">${tasks.length ? tasks.map(taskRow).join('') : '<div class="empty">이번 주에 배정된 업무가 없습니다.</div>'}</div>
-  <h2>최근 직원 보고<small><button class="linkbtn" data-go2="posts">전체 보기</button></small></h2>
-  ${posts.map(postCard).join('') || '<div class="card empty">아직 보고가 없습니다.</div>'}
+  <h2>오늘의 경영 브리핑<small>${bf.day ? md(bf.day) + ' 마감 기준' : ''}</small></h2>
+  <div class="card bf">${briefingHtml(bf)}</div>
   </div></div>`;
   bindTasks(el); el.querySelectorAll('[data-go2]').forEach((b) => b.onclick = () => { page = b.dataset.go2; render(); window.scrollTo(0, 0); });
 }
