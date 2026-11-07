@@ -99,6 +99,7 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
 .empty { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
 .spark { width: 100%; height: 120px; display: block; }
 [hidden] { display: none !important; }
+.idea { padding: 7px 0; border-bottom: 1px solid var(--line); } .idea:last-of-type { border-bottom: 0; } .idea .it { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; } .idea .no { width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; display: inline-grid; place-items: center; } .idea .small { margin-top: 2px; } .ord { padding: 7px 0; border-bottom: 1px solid var(--line); } .ord:last-of-type { border-bottom: 0; } .ord .row { display: flex; justify-content: space-between; gap: 8px; }
 .bf .bfh { font-weight: 700; font-size: 14px; margin: 14px 0 6px; } .bf .bfh:first-child { margin-top: 0; } .bf p { margin: 4px 0; } .bfw { padding: 5px 0; font-size: 13.5px; border-bottom: 1px solid var(--line); } .bfw:last-child { border-bottom: 0; } .tx-bad { color: var(--bad); } .tx-warn { color: var(--warn); } .tx-ok { color: var(--ok); }
 .arow { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; } .arow:last-of-type { border-bottom: 0; } .arow .t { overflow-wrap: anywhere; }
 /* 노트북·큰 화면 (900px 이상): 위쪽 탭, 사진 가로 띠, 홈 2단 */
@@ -281,15 +282,13 @@ function wxLine(i, label) {
 }
 function briefingHtml(bf) {
   loadWx();
-  const b = bf.bep, ro = bf.runout || [];
-  if (!b) return '<div class="empty">내일 일일보고부터 표시됩니다.</div>';
-  const pace = b.bdays ? b.elapsed / b.bdays : null;
-  return `<div class="bfh">① 손익분기</div>
-  ${progBar('손익분기 매출', b.mtd, b.bep, pace)}
-  <p class="small">남은 영업일 ${b.left}일 · 하루 <b>${won(b.need)}</b> 팔아야 손익분기</p>
-  <p class="small">지금 속도면 월말 ${man(b.proj)}원 · 영업손익 <b class="${b.op_est < 0 ? 'tx-bad' : 'tx-ok'}">${b.op_est < 0 ? '−' : '+'}${man(Math.abs(b.op_est))}원</b> <span class="muted">(마진 ${Math.round(b.gm * 1000) / 10}% · 판관비 ${man(b.fixed)} 기준)</span></p>
-  <div class="bfh">② 소진 임박 TOP5 <span class="muted small">최근 ${bf.window_days}일 판매속도</span></div>
-  ${ro.length ? ro.map((r) => `<div class="arow"><span class="chip ${r.days_left <= 14 ? 'bad' : r.days_left <= 30 ? 'warn' : ''}">${md(r.out_date)}</span><span class="t">${esc(r.item)}<span class="muted small"> · ${esc(r.brand)}</span></span><span class="muted small">재고 ${r.stock} · 주 ${r.per_week}개</span></div>`).join('') + '<div class="small muted" style="margin-top:4px">날짜 = 이 속도로 팔 때 재고가 바닥나는 날 · 30일 이내면 발주 검토</div>' : '<div class="empty">30일 안에 바닥날 상품이 없습니다.</div>'}
+  const ide = rep('ideas'), ro = bf.reorder || [];
+  const effort = { 소: 'ok', 중: 'warn', 대: 'bad' };
+  const ideas = (ide.items || []).length ? `${ide.status === 'same' ? `<p class="small muted">${esc(ide.note || '특이사항 없음')} · ${md(ide.since)} 제안 유지</p>` : ''}` + ide.items.map((x, i) => `<div class="idea"><div class="it"><span class="no">${i + 1}</span><b>${esc(x.title)}</b> <span class="chip ${effort[x.effort] || ''}">${esc(x.effort || '')}${x.owner ? ' · ' + esc(x.owner) : ''}</span></div><div class="small">${esc(x.action)}</div><div class="small muted">근거 · ${esc(x.why)}</div></div>`).join('') : '<div class="empty">내일 일일보고부터 표시됩니다.</div>';
+  const cnt = (c) => [c.soldout && `품절 ${c.soldout}`, c.low && `3개 이하 ${c.low}`, c.fast && `판매 가속 ${c.fast}`, c.runout && `소진 예상 ${c.runout}`].filter(Boolean).join(' · ');
+  const orders = ro.length ? ro.slice(0, 6).map((r) => `<div class="ord"><div class="row"><b>${esc(r.brand)}</b><span class="small ${r.late ? 'tx-bad' : 'muted'}">${r.order_by ? (r.late ? '지금 발주 필요' : md(r.order_by) + '까지 발주') : r.lead ? '' : '리드타임 미입력'}</span></div><div class="small muted">${cnt(r.counts)}</div><div class="small">${r.items.slice(0, 4).map((i) => `${esc(i.item)} <span class="muted">(${esc(i.reason)})</span>`).join(' · ')}${r.items.length > 4 ? ` 외 ${r.items.length - 4}` : ''}</div></div>`).join('') + (ro.length > 6 ? `<div class="small muted" style="margin-top:4px">외 ${ro.length - 6}개 브랜드</div>` : '') : '<div class="empty">지금 발주가 필요한 브랜드가 없습니다.</div>';
+  return `<div class="bfh">① 오늘의 매출 제안${ide.day ? ` <span class="muted small">${md(ide.day)} 갱신</span>` : ''}</div>${ideas}
+  <div class="bfh">② 발주 제안 <span class="muted small">품절 지속 · 3개 이하 · 판매 가속 · 소진 예상</span></div>${orders}
   <div class="bfh">③ 날씨와 매장</div>
   ${!wx ? '<div class="small muted">예보 불러오는 중…</div>' : wx.error ? '<div class="small muted">예보를 불러오지 못했습니다.</div>' : wxLine(0, '오늘') + wxLine(1, '내일')}`;
 }
