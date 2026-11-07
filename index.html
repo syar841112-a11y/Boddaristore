@@ -99,6 +99,7 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
 .empty { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
 .spark { width: 100%; height: 120px; display: block; }
 [hidden] { display: none !important; }
+.arow { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; } .arow:last-of-type { border-bottom: 0; } .arow .t { overflow-wrap: anywhere; }
 /* 노트북·큰 화면 (900px 이상): 위쪽 탭, 사진 가로 띠, 홈 2단 */
 @media (min-width: 900px) {
   .wrap { max-width: 1120px; padding: 84px 28px 40px; }
@@ -257,6 +258,8 @@ const progBar = (label, val, target, pace) => {
 const hbars = (list, lab, val, txt) => { const mx = Math.max(...list.map(val), 0) || 1; return list.map((r) => `<div class="hb"><span class="lbl">${esc(lab(r))}</span><span class="track"><i style="width:${val(r) / mx * 100}%"></i></span><span class="val">${txt(r)}</span></div>`).join(''); };
 
 /* ---------- 홈 ---------- */
+const sinceTxt = (a) => a.since ? `${+a.since.slice(5, 7)}/${+a.since.slice(8)}부터` : '';
+const alertRow = (a) => `<div class="arow"><span class="chip ${a.level === '긴급' ? 'bad' : 'warn'}">${a.level === '긴급' ? '품절' : '재고 ' + a.stock}</span><span class="t">${esc(a.item)}${a.new ? ' <span class="badge">신규</span>' : ''}</span><span class="muted small">${sinceTxt(a)}</span></div>`;
 function drawHome(el) {
   const s = rep('summary'), c = calc(), al = rep('alerts').rows || [];
   const today = kst(), wk = mondayOf(today);
@@ -280,8 +283,8 @@ function drawHome(el) {
   ${c ? `<h2>${+c.month.slice(5)}월 목표 진척<small>영업일 ${c.elapsed}/${c.bdays}일 · 세로선 = 오늘까지 페이스</small></h2>
   <div class="card">${progBar('전체 (카페트 제외)', c.mtd, 15000000, c.pace)}${progBar('매장', c.mstore, 10000000, c.pace)}${progBar('온라인 3채널', c.monline, 5000000, c.pace)}
   <div class="muted small">남은 영업일 하루 ${won(c.need)} 필요${c.mcarpet ? ` · 카페트(별도) ${won(c.mcarpet)}` : ''}</div></div>` : ''}
-  <h2>오늘 확인할 것<small>전일 판매 기준</small></h2>
-  <div class="card">${al.length ? `<div class="chips" style="margin-bottom:6px">${nb ? `<span class="chip bad">긴급 · 품절 ${nb}</span>` : ''}${nw ? `<span class="chip warn">주의 · 품절 임박 ${nw}</span>` : ''}</div>` + al.slice(0, 5).map((a) => `<div class="small">${a.level === '긴급' ? '🔴' : '🟠'} ${esc(a.item)} <span class="muted">재고 ${a.stock}개</span></div>`).join('') + (al.length > 5 ? `<div class="small muted">외 ${al.length - 5}건 — 매출 탭</div>` : '') : '<div class="empty">전일 판매로 품절되거나 3개 이하로 내려온 상품이 없습니다.</div>'}</div>
+  <h2>오늘 확인할 것<small>재입고 전까지 계속 표시</small></h2>
+  <div class="card">${al.length ? `<div class="chips" style="margin-bottom:8px">${nb ? `<span class="chip bad">긴급 · 품절 ${nb}</span>` : ''}${nw ? `<span class="chip warn">주의 · 3개 이하 ${nw}</span>` : ''}${al.some((a) => a.new) ? `<span class="chip">신규 ${al.filter((a) => a.new).length}</span>` : ''}</div>` + al.slice(0, 8).map(alertRow).join('') + (al.length > 8 ? `<div class="small muted" style="margin-top:6px">외 ${al.length - 8}건 — 매출 탭에서 전체 보기</div>` : '') : '<div class="empty">재고 3개 이하이거나 품절된 상품이 없습니다.</div>'}</div>
   </div><div class="col">
   <h2>이달의 목표<small>${+today.slice(5, 7)}월 · ${goals.length}개</small></h2>
   <div class="card">${goals.length ? goals.map((g, i) => `<div class="goal" style="${i ? 'margin-top:12px' : ''}"><div class="no">${i + 1}</div><div><div class="t">${esc(g.data.title)}</div><div class="ms">측정 · ${esc(g.data.measure)}</div>${g.data.result ? `<div class="small" style="margin-top:2px">결과 · ${esc(g.data.result)}</div>` : ''}</div></div>`).join('') : '<div class="empty">이달 목표가 없습니다. 업무 탭에서 추가해 주세요.</div>'}</div>
@@ -324,8 +327,8 @@ function drawSales(el) {
   <h2>어제 무엇이 팔렸나</h2>
   <div class="card"><div class="small muted" style="margin-bottom:4px">매장 카테고리</div>${cat.length ? hbars(cat.sort((a, b) => b.sales - a.sales), (r) => r.category, (r) => r.sales, (r) => won(r.sales)) : '<div class="empty">반영 전</div>'}
     <div class="small muted" style="margin:10px 0 4px">가격대(4채널)</div>${band.length ? hbars(band, (r) => r.band, (r) => r.sales, (r) => `${won(r.sales)} · ${r.lines}줄`) : '<div class="empty">반영 전</div>'}</div>
-  <h2>오늘 확인할 것<small>품절=긴급 · 3개 이하=주의</small></h2>
-  <div class="card">${al.length ? `<table><thead><tr><th></th><th>상품</th><th class="n">전일 판매</th><th class="n">현재 재고</th></tr></thead><tbody>${al.map((a) => `<tr><td><span class="chip ${a.level === '긴급' ? 'bad' : 'warn'}">${a.level}</span></td><td>${esc(a.item)}<div class="muted small">${esc(a.brand)}</div></td><td class="n muted">${a.sold}개</td><td class="n" style="${a.stock <= 0 ? 'color:var(--bad)' : ''}">${a.stock}개</td></tr>`).join('')}</tbody></table>` : '<div class="empty">전일 판매로 품절되거나 3개 이하로 내려온 상품이 없습니다.</div>'}</div>
+  <h2>오늘 확인할 것<small>품절=긴급 · 3개 이하=주의 · 재입고 전까지 계속 표시</small></h2>
+  <div class="card">${al.length ? `<table><thead><tr><th></th><th>상품</th><th class="n">경고 시작</th><th class="n">현재 재고</th></tr></thead><tbody>${al.map((a) => `<tr><td><span class="chip ${a.level === '긴급' ? 'bad' : 'warn'}">${a.level}</span></td><td>${esc(a.item)}${a.new ? ' <span class="badge">신규</span>' : ''}<div class="muted small">${esc(a.brand)}${a.sold ? ` · 전일 ${a.sold}개 판매` : ''}</div></td><td class="n muted">${sinceTxt(a)}${a.days ? `<div class="small">${a.days}일째</div>` : ''}</td><td class="n" style="${a.stock <= 0 ? 'color:var(--bad)' : ''}">${a.stock}개</td></tr>`).join('')}</tbody></table>` : '<div class="empty">재고 3개 이하이거나 품절된 상품이 없습니다.</div>'}</div>
   <h2>주간 매장 결제·객단가<small>매주 화요일 수집 (화~일)</small></h2>
   <div class="card">${tw.length ? `<table><thead><tr><th>주</th><th class="n">매출</th><th class="n">결제</th><th class="n">객단가</th></tr></thead><tbody>${tw.map((r) => `<tr><td>${md(r.week_start)}~${md(r.week_end)}</td><td class="n">${won(r.store)}</td><td class="n">${r.tx}건</td><td class="n">${won(r.ticket)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">수집 전</div>'}</div>
   <h2>숫자 목표</h2>
