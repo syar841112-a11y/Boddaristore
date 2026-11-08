@@ -168,7 +168,7 @@ const mondayOf = (iso) => { const d = new Date(iso + 'T00:00:00Z'); const w = d.
 const lastDay = (iso) => { const d = new Date(iso + 'T00:00:00Z'); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate(); };
 
 let ME = null, DB = {}, page = 'home', storeDate = kst(), postFilter = '전체', taskView = '전체';
-const COLS = ['report', 'tasks', 'goals', 'months', 'posts', 'storelog', 'carpet', 'staff'];
+const COLS = ['report', 'tasks', 'goals', 'months', 'posts', 'storelog', 'carpet', 'staff', 'mktlog'];
 
 /* ---------- 로그인 ---------- */
 let signupMode = false;
@@ -392,6 +392,10 @@ function drawSales(el) {
   const igHtml = ig.week ? (() => { const a = ig.week, b = ig.prev || {};
     const posts = (ig.posts || []).slice(0, 5).map((p) => `<div class="post"><span class="muted small">${md(p.date)} ${esc(p.type)}</span><span class="t">${esc(p.title)}</span><span class="small muted">도달 ${(+p.reach).toLocaleString('ko-KR')} · 반응 ${p.interactions}</span></div>`).join('');
     return `<div class="minis">${box('게시', `피드 ${a.feed} · 릴스 ${a.reels} · 스토리 ${a.stories}`, b.feed != null ? `전주 ${b.feed} · ${b.reels} · ${b.stories}` : null)}${box('도달', nf(a.reach), b.reach != null ? '전주 ' + nf(b.reach) : null)}${box('반응', a.interactions, b.interactions != null ? '전주 ' + b.interactions : null)}</div><div class="small muted" style="margin-top:6px">마지막 게시 ${md(ig.last_post)} · 예약된 게시물 ${ig.scheduled ?? '—'}건</div>${posts ? `<div class="posts">${posts}</div>` : ''}`; })() : '<div class="empty">인스타 자료 수집 전</div>';
+  // 문자·메일·쿠폰 발송 기록(송부장·이대리가 보낼 때마다 mktlog에 한 줄) — 최근 14일
+  const back14 = (() => { const t = new Date(y.day + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() - 13); return t.toISOString().slice(0, 10); })();
+  const mk = rows('mktlog').map((d) => d.data).filter((m) => (m.date || '') >= back14).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const mkHtml = `<div class="sub">문자 · 메일 · 쿠폰 <span class="muted small" style="font-weight:400">최근 2주</span></div>` + (mk.length ? mk.map((m) => `<div class="post"><span class="muted small">${md(m.date)} ${esc(m.kind || '')}</span><span class="t">${esc(m.title || '')}</span><span class="small muted">${[m.sent != null ? `발송 ${(+m.sent).toLocaleString('ko-KR')}명` : '', m.target ? esc(m.target) : '', m.coupon ? esc(m.coupon) : '', m.used != null ? `쿠폰 사용 ${m.used}장` : ''].filter(Boolean).join(' · ')}</span></div>`).join('') : '<div class="small muted">최근 2주 발송 기록 없음</div>');
   const smHtml = sm.visitors != null ? `<div class="minis">${box('방문 고객', nf(sm.visitors) + '명', sm.visitors_p != null ? `직전 ${nf(sm.visitors_p)} · ${chg(sm.visitors, sm.visitors_p)}` : null)}${box('구매 · 전환율', `${sm.buyers}명 · ${sm.conv ?? '—'}%`, sm.buyers_p != null ? `직전 ${sm.buyers_p}명 · ${sm.conv_p ?? '—'}%` : null)}${box('신규 · 재방문', `${nf(sm.new)} · ${nf(sm.repeat)}`, sm.repeat_buyers != null ? `재구매 ${sm.repeat_buyers}명` : null)}</div>`
     + ((sm.ages || []).length ? `<div class="small" style="margin-top:10px"><span class="muted">주 고객층</span> ${sm.ages.map((g) => `${esc(g.name)} ${g.pct}%`).join(' · ')}</div>` : '')
     + ((sm.paths || []).length ? `<div class="small muted" style="margin:12px 0 4px">유입 경로 (직전 기간)</div>` + hbars(sm.paths, (r) => r.name, (r) => r.w, (r) => `${r.w}명 <span class="muted">(${r.p})</span>`) : '')
@@ -413,7 +417,7 @@ function drawSales(el) {
   <h2>최근 14일 매출 흐름<small><span style="color:#1F5A36">■</span> 매장 · <span style="color:#B23A32">■</span> 온라인</small></h2>
   <div class="card">${spark}</div>
   <h2>자사몰 · 고객과 마케팅<small>${tr.frm ? `${md(tr.frm)}~${md(tr.to)} · ` : ''}전주 대비</small></h2>
-  <div class="card">${cafeHtml}<div class="sub">인스타그램 @boddaristore · 주간</div>${igHtml}</div>
+  <div class="card">${cafeHtml}<div class="sub">인스타그램 @boddaristore · 주간</div>${igHtml}${mkHtml}</div>
   <h2>스마트스토어 · 고객과 마케팅<small>${sm.frm ? `${md(sm.frm)}~${md(sm.to)}` : ''}</small></h2>
   <div class="card">${smHtml}</div>
   <h2>어제 팔린 상품 TOP 10</h2>
