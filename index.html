@@ -100,6 +100,7 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
 .spark { width: 100%; height: 120px; display: block; }
 [hidden] { display: none !important; }
 .idea { padding: 7px 0; border-bottom: 1px solid var(--line); } .idea:last-of-type { border-bottom: 0; } .idea { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; font-size: 14px; line-height: 1.55; } .idea .no { margin-top: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; display: inline-grid; place-items: center; } .idea .small { margin-top: 2px; } .ord { padding: 7px 0; border-bottom: 1px solid var(--line); } .ord:last-of-type { border-bottom: 0; } .ord .row { display: flex; justify-content: space-between; gap: 8px; }
+.minis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; } .mini { background: var(--soft); border-radius: 8px; padding: 7px 8px; } .mini .k { font-size: 11.5px; color: var(--muted); } .mini .v { font-size: 13.5px; font-weight: 700; margin-top: 2px; } .mini .s { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .bf .bfh { font-weight: 700; font-size: 14px; margin: 14px 0 6px; } .bf .bfh:first-child { margin-top: 0; } .bf p { margin: 4px 0; } .bfw .wxi { font-size: 18px; margin-right: 6px; vertical-align: -2px; } .bfw { padding: 5px 0; font-size: 13.5px; border-bottom: 1px solid var(--line); } .bfw:last-child { border-bottom: 0; } .tx-bad { color: var(--bad); } .tx-warn { color: var(--warn); } .tx-ok { color: var(--ok); }
 .arow { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; } .arow:last-of-type { border-bottom: 0; } .arow .t { overflow-wrap: anywhere; }
 /* 노트북·큰 화면 (900px 이상): 위쪽 탭, 사진 가로 띠, 홈 2단 */
@@ -334,14 +335,25 @@ function drawHome(el) {
 function drawSales(el) {
   const c = calc(), s = rep('summary');
   if (!c) { el.innerHTML = '<div class="card empty">아직 매출 자료가 없습니다.</div>'; return; }
-  const y = c.y, top = rep('top').rows || [], al = rep('alerts').rows || [], cat = (rep('category').rows || []).filter((r) => r.day === y.day), band = (rep('price_band').rows || []).filter((r) => r.day === y.day);
-  const tw = (rep('ticket_weekly').rows || []).slice(-4).reverse(), goals = rep('goals').rows || [];
+  const y = c.y, top = rep('top').rows || [], cat = (rep('category').rows || []).filter((r) => r.day === y.day), band = (rep('price_band').rows || []).filter((r) => r.day === y.day);
+  const goals = rep('goals').rows || [], ig = rep('insta');
   const last14 = c.daily.slice(-14);
   const mx = Math.max(...last14.map((d) => d.total), 1);
   const W = 600, H = 120, bw = W / last14.length;
   const spark = `<svg class="spark" viewBox="0 0 ${W} ${H + 18}" preserveAspectRatio="none" role="img" aria-label="최근 14일 매출">${last14.map((d, i) => {
     const hs = d.store / mx * H, ho = d.online / mx * H; const x = i * bw + bw * .18, w = bw * .64;
-    return `<rect x="${x}" y="${H - hs}" width="${w}" height="${hs}" fill="#1F5A36" rx="2"/><rect x="${x}" y="${H - hs - ho}" width="${w}" height="${ho}" fill="#8FB59A" rx="2"/><text x="${x + w / 2}" y="${H + 14}" font-size="11" text-anchor="middle" fill="#6B7068">${+d.day.slice(8)}</text>`; }).join('')}</svg>`;
+    return `<rect x="${x}" y="${H - hs}" width="${w}" height="${hs}" fill="#1F5A36" rx="2"/><rect x="${x}" y="${H - hs - ho}" width="${w}" height="${ho}" fill="#B23A32" rx="2"/><text x="${x + w / 2}" y="${H + 14}" font-size="11" text-anchor="middle" fill="#6B7068">${+d.day.slice(8)}</text>`; }).join('')}</svg>`;
+  // 온라인 채널: 전일 · 최근 7일 · 그 전 7일
+  const n = c.daily.length, w7 = c.daily.slice(Math.max(0, n - 7)), p7 = c.daily.slice(Math.max(0, n - 14), Math.max(0, n - 7));
+  const S = (r, f) => r.reduce((t, d) => t + (+d[f] || 0), 0), cntTx = (r, f) => r.some((d) => d[f] == null) ? null : S(r, f);
+  const chg = (a, b) => b ? `<span class="${a >= b ? 'tx-ok' : 'tx-bad'}">${a >= b ? '+' : ''}${pct((a - b) / b, 0)}</span>` : (a ? '<span class="muted">신규</span>' : '<span class="muted">—</span>');
+  const CH = [['cafe24', '자사몰'], ['smart', '스마트스토어'], ['ohouse', '오늘의집']];
+  const chRows = CH.map(([k, nm]) => { const t7 = cntTx(w7, k + '_tx'); return `<tr><td>${nm}</td><td class="n">${won(y[k])}${y[k + '_tx'] != null ? `<div class="muted small">${y[k + '_tx']}건</div>` : ''}</td><td class="n">${won(S(w7, k))}${t7 != null ? `<div class="muted small">${t7}건</div>` : ''}</td><td class="n">${chg(S(w7, k), S(p7, k))}</td></tr>`; }).join('');
+  const on7 = S(w7, 'online'), onp = S(p7, 'online');
+  const igBox = ig.week ? (() => { const a = ig.week, b = ig.prev || {}; const box = (k, v, pv) => `<div class="mini"><div class="k">${k}</div><div class="v">${v}</div>${pv != null ? `<div class="s">전주 ${pv}</div>` : ''}</div>`;
+    return `<div class="small muted" style="margin:12px 0 6px">인스타그램 @boddaristore · 최근 7일 (${md(a.frm)}~${md(a.to)})</div><div class="minis">${box('게시', `피드 ${a.feed} · 릴스 ${a.reels} · 스토리 ${a.stories}`, b.feed != null ? `${b.feed} · ${b.reels} · ${b.stories}` : null)}${box('도달', a.reach.toLocaleString('ko-KR'), b.reach != null ? b.reach.toLocaleString('ko-KR') : null)}${box('반응', a.interactions, b.interactions)}</div><div class="small muted" style="margin-top:6px">마지막 게시 ${md(ig.last_post)} · 예약된 게시물 ${ig.scheduled ?? '—'}건</div>`; })() : '';
+  // 어제 팔린 상품: TOP10 + 카테고리·가격대 요약
+  const shareTxt = (list, lab) => { const t = list.reduce((x, r) => x + r.sales, 0) || 1; return list.sort((p, q) => q.sales - p.sales).slice(0, 3).map((r) => `${esc(lab(r))} ${Math.round(r.sales / t * 100)}%`).join(' · '); };
   el.innerHTML = `
   <h2 style="margin-top:4px">${md(y.day)} 전일 실적<small>페이히어·김사원 판매이력</small></h2>
   <div class="kpis">
@@ -354,19 +366,14 @@ function drawSales(el) {
   <h2>채널별 목표 페이스<small>목표 달성 전 빨강 · 달성 후 초록</small></h2>
   <div class="card">${c.ch.map((r) => progBar(r.n, r.mtd, r.t, c.pace) + `<div class="muted small" style="margin:-6px 0 6px">지난달 같은 기간 ${won(r.prev)}</div>`).join('')}
     <div class="prog"><div class="row"><span>카페트(별도)</span><b>${won(c.mcarpet)}</b></div><div class="muted small">지난달 ${won(c.pmCarpet)}</div></div></div>
-  <h2>최근 14일<small>진녹색 매장 · 연녹색 온라인</small></h2>
+  <h2>최근 14일 매출 흐름<small><span style="color:#1F5A36">■</span> 매장 · <span style="color:#B23A32">■</span> 온라인</small></h2>
   <div class="card">${spark}</div>
+  <h2>온라인 채널 분석<small>전일 · 최근 7일 · 전주 대비</small></h2>
+  <div class="card"><table><thead><tr><th>채널</th><th class="n">전일</th><th class="n">최근 7일</th><th class="n">전주 대비</th></tr></thead><tbody>${chRows}<tr><td><b>합계</b></td><td class="n"><b>${won(y.online)}</b></td><td class="n"><b>${won(on7)}</b></td><td class="n">${chg(on7, onp)}</td></tr></tbody></table>${igBox}</div>
   <h2>어제 팔린 상품 TOP 10</h2>
-  <div class="card">${top.length ? `<table><thead><tr><th>상품</th><th>채널</th><th class="n">수량</th><th class="n">금액</th><th class="n">마진</th></tr></thead><tbody>${top.map((r) => `<tr><td>${esc(r.product)}<div class="muted small">${esc(r.brand)}</div></td><td>${esc(r.channel)}</td><td class="n">${r.qty}</td><td class="n">${won(r.amount)}</td><td class="n ${r.margin != null && r.margin < .4 ? '' : 'muted'}" style="${r.margin != null && r.margin < .4 ? 'color:var(--warn)' : ''}">${r.margin == null ? '40%(추정)' : pct(r.margin, 0)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">전일 상품별 판매가 아직 반영되지 않았습니다(판매 파일 미입력 또는 판매 없음).</div>'}</div>
-  <h2>어제 무엇이 팔렸나</h2>
-  <div class="card"><div class="small muted" style="margin-bottom:4px">매장 카테고리</div>${cat.length ? hbars(cat.sort((a, b) => b.sales - a.sales), (r) => r.category, (r) => r.sales, (r) => won(r.sales)) : '<div class="empty">반영 전</div>'}
-    <div class="small muted" style="margin:10px 0 4px">가격대(4채널)</div>${band.length ? hbars(band, (r) => r.band, (r) => r.sales, (r) => `${won(r.sales)} · ${r.lines}줄`) : '<div class="empty">반영 전</div>'}</div>
-  <h2>오늘 확인할 것<small>품절=긴급 · 3개 이하=주의 · 재입고 전까지 계속 표시</small></h2>
-  <div class="card">${al.length ? `<table><thead><tr><th></th><th>상품</th><th class="n">경고 시작</th><th class="n">현재 재고</th></tr></thead><tbody>${al.map((a) => `<tr><td><span class="chip ${a.level === '긴급' ? 'bad' : 'warn'}">${a.level}</span></td><td>${esc(a.item)}${a.new ? ' <span class="badge">신규</span>' : ''}<div class="muted small">${esc(a.brand)}${a.sold ? ` · 전일 ${a.sold}개 판매` : ''}</div></td><td class="n muted">${sinceTxt(a)}${a.days ? `<div class="small">${a.days}일째</div>` : ''}</td><td class="n" style="${a.stock <= 0 ? 'color:var(--bad)' : ''}">${a.stock}개</td></tr>`).join('')}</tbody></table>` : '<div class="empty">재고 3개 이하이거나 품절된 상품이 없습니다.</div>'}</div>
-  <h2>주간 매장 결제·객단가<small>매주 화요일 수집 (화~일)</small></h2>
-  <div class="card">${tw.length ? `<table><thead><tr><th>주</th><th class="n">매출</th><th class="n">결제</th><th class="n">객단가</th></tr></thead><tbody>${tw.map((r) => `<tr><td>${md(r.week_start)}~${md(r.week_end)}</td><td class="n">${won(r.store)}</td><td class="n">${r.tx}건</td><td class="n">${won(r.ticket)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">수집 전</div>'}</div>
+  <div class="card">${cat.length || band.length ? `<div class="small" style="margin-bottom:8px">${cat.length ? `<div><span class="muted">매장 카테고리</span> ${shareTxt(cat, (r) => r.category)}</div>` : ''}${band.length ? `<div><span class="muted">가격대</span> ${shareTxt(band, (r) => r.band)}</div>` : ''}</div>` : ''}${top.length ? `<table><thead><tr><th>상품</th><th>채널</th><th class="n">수량</th><th class="n">금액</th><th class="n">마진</th></tr></thead><tbody>${top.map((r) => `<tr><td>${esc(r.product)}<div class="muted small">${esc(r.brand)}</div></td><td>${esc(r.channel)}</td><td class="n">${r.qty}</td><td class="n">${won(r.amount)}</td><td class="n ${r.margin != null && r.margin < .4 ? '' : 'muted'}" style="${r.margin != null && r.margin < .4 ? 'color:var(--warn)' : ''}">${r.margin == null ? '40%(추정)' : pct(r.margin, 0)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">전일 상품별 판매가 아직 반영되지 않았습니다(판매 파일 미입력 또는 판매 없음).</div>'}</div>
   <h2>숫자 목표</h2>
-  <div class="card">${goals.map((g) => { const r = g.target ? g.current / g.target : 0; return `<div class="prog"><div class="row"><span>${esc(g.title)}</span><b>${g.unit === '원' ? won(g.current) : g.current + g.unit}</b></div><div class="bar"><i class="${r >= 1 ? 'ok' : ''}" style="width:${Math.max(0, Math.min(100, r * 100))}%"></i></div><div class="muted small">${esc(g.note || '')}</div></div>`; }).join('')}</div>
+  <div class="card">${goals.map((g) => { const r = g.target ? g.current / g.target : 0; const f = (v) => g.unit === '원' ? won(v) : v + g.unit; return `<div class="prog"><div class="row"><span>${esc(g.title)}</span><b>${f(g.current)}</b></div><div class="bar"><i class="${r >= 1 ? 'ok' : ''}" style="width:${Math.max(0, Math.min(100, r * 100))}%"></i></div>${g.prev != null ? `<div class="muted small">전월 ${f(g.prev)}</div>` : ''}</div>`; }).join('')}</div>
   <div class="muted small" style="text-align:center;margin-top:10px">이대리 · ${s.updatedAt ? s.updatedAt.slice(0, 16).replace('T', ' ') : ''} 갱신</div>`;
 }
 
