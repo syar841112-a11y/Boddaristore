@@ -86,7 +86,7 @@ textarea { min-height: 70px; resize: vertical; }
 .counter .ctl button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); font-size: 20px; line-height: 1; cursor: pointer; }
 .counter .ctl b { min-width: 2ch; text-align: center; font-family: var(--display); font-size: 20px; font-variant-numeric: tabular-nums; }
 .saved { font-size: 12px; color: var(--ok); min-height: 1.4em; margin-top: 6px; text-align: center; }
-nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(6, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 nav.tabs button { height: var(--tabh); background: none; border: 0; display: grid; place-items: center; align-content: center; gap: 2px; font-size: 11px; color: var(--muted); cursor: pointer; }
 nav.tabs button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; }
 nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
@@ -102,12 +102,13 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
 .idea { padding: 7px 0; border-bottom: 1px solid var(--line); } .idea:last-of-type { border-bottom: 0; } .idea { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; font-size: 14px; line-height: 1.55; } .idea .no { margin-top: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; display: inline-grid; place-items: center; } .idea .small { margin-top: 2px; } .ord { padding: 7px 0; border-bottom: 1px solid var(--line); } .ord:last-of-type { border-bottom: 0; } .ord .row { display: flex; justify-content: space-between; gap: 8px; }
 .sub { font-weight: 700; font-size: 14px; margin: 16px 0 8px; padding-top: 12px; border-top: 1px solid var(--line); } .posts { margin-top: 10px; } .post { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 13.5px; } .post .t { overflow-wrap: anywhere; } .post .small.muted:last-child { grid-column: 2; }
 .minis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; } .mini { background: var(--soft); border-radius: 8px; padding: 7px 8px; } .mini .k { font-size: 11.5px; color: var(--muted); } .mini .v { font-size: 13.5px; font-weight: 700; margin-top: 2px; } .mini .s { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.brow { padding: 10px 0; border-bottom: 1px solid var(--line); cursor: pointer; } .brow:last-of-type { border-bottom: 0; } .brow .bh { display: flex; justify-content: space-between; align-items: center; gap: 8px; } .bbar { height: 6px; background: var(--soft); border-radius: 3px; margin: 6px 0 4px; overflow: hidden; } .bbar i { display: block; height: 100%; background: var(--green); border-radius: 3px; } .bitems { margin-top: 8px; font-size: 13px; } .brow.open { background: #FAF9F5; }
 .bf .bfh { font-weight: 700; font-size: 14px; margin: 14px 0 6px; } .bf .bfh:first-child { margin-top: 0; } .bf p { margin: 4px 0; } .bfw .wxi { font-size: 18px; margin-right: 6px; vertical-align: -2px; } .bfw { padding: 5px 0; font-size: 13.5px; border-bottom: 1px solid var(--line); } .bfw:last-child { border-bottom: 0; } .tx-bad { color: var(--bad); } .tx-warn { color: var(--warn); } .tx-ok { color: var(--ok); }
 .arow { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; } .arow:last-of-type { border-bottom: 0; } .arow .t { overflow-wrap: anywhere; }
 /* 노트북·큰 화면 (900px 이상): 위쪽 탭, 사진 가로 띠, 홈 2단 */
 @media (min-width: 900px) {
   .wrap { max-width: 1120px; padding: 84px 28px 40px; }
-  nav.tabs { top: 0; bottom: auto; border-top: 0; border-bottom: 1px solid var(--line); padding: 0 max(28px, calc(50% - 532px)); grid-template-columns: repeat(5, 120px); justify-content: end; }
+  nav.tabs { top: 0; bottom: auto; border-top: 0; border-bottom: 1px solid var(--line); padding: 0 max(28px, calc(50% - 532px)); grid-template-columns: repeat(6, 110px); justify-content: end; }
   nav.tabs button { height: 56px; grid-auto-flow: column; gap: 6px; font-size: 14px; }
   nav.tabs button svg { width: 18px; height: 18px; }
   header.top { position: fixed; top: 0; left: max(28px, calc(50% - 532px)); height: 56px; align-items: center; z-index: 6; margin: 0; gap: 18px; }
@@ -137,6 +138,7 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
     <header class="top"><h1>보따리상점</h1><div class="who"><span id="who"></span><br><button id="logout">로그아웃</button></div></header>
     <section data-page="home"></section>
     <section data-page="sales" hidden></section>
+    <section data-page="stock" hidden></section>
     <section data-page="work" hidden></section>
     <section data-page="store" hidden></section>
     <section data-page="posts" hidden></section>
@@ -144,6 +146,7 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
   <nav class="tabs" aria-label="메뉴">
     <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
     <button data-go="sales"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>매출</button>
+    <button data-go="stock"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>재고</button>
     <button data-go="work"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>업무</button>
     <button data-go="store"><svg viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5M4 9v11h16V9M4 9h16M9 20v-6h6v6"/></svg>매장</button>
     <button data-go="posts"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>보고함</button>
@@ -226,7 +229,7 @@ document.querySelectorAll('nav.tabs button').forEach((b) => b.onclick = () => { 
 function render() {
   document.querySelectorAll('nav.tabs button').forEach((b) => b.setAttribute('aria-current', b.dataset.go === page ? 'page' : 'false'));
   document.querySelectorAll('section[data-page]').forEach((s) => s.hidden = s.dataset.page !== page);
-  ({ home: drawHome, sales: drawSales, work: drawWork, store: drawStore, posts: drawPosts })[page]($(`section[data-page=${page}]`));
+  ({ home: drawHome, sales: drawSales, stock: drawStock, work: drawWork, store: drawStore, posts: drawPosts })[page]($(`section[data-page=${page}]`));
 }
 
 /* ---------- 매출 계산 (일일보고와 같은 규칙) ---------- */
@@ -330,6 +333,40 @@ function drawHome(el) {
   <div class="card bf">${briefingHtml(bf)}</div>
   </div></div>`;
   bindTasks(el); el.querySelectorAll('[data-go2]').forEach((b) => b.onclick = () => { page = b.dataset.go2; render(); window.scrollTo(0, 0); });
+}
+
+
+/* ---------- 재고 ---------- */
+let openBrand = null;
+function drawStock(el) {
+  const inv = rep('inventory').rows || {}, al = rep('alerts').rows || [], ro = (rep('briefing').rows || {}).reorder || [];
+  if (!inv.brands) { el.innerHTML = '<div class="card empty">아직 재고 자료가 없습니다.</div>'; return; }
+  const stCls = { 부족: 'bad', 과잉: 'warn', 적정: 'ok', '판매 없음': '' };
+  const days = (d) => d == null ? '—' : d >= 365 ? '1년+' : d + '일';
+  const mxv = Math.max(...inv.brands.map((b) => b.val), 1);
+  const brandRows = inv.brands.map((b) => `<div class="brow${openBrand === b.brand ? ' open' : ''}" data-brand="${esc(b.brand)}">
+    <div class="bh"><b>${esc(b.brand)}</b><span class="chip ${stCls[b.status] || ''}">${b.status}</span></div>
+    <div class="bbar"><i style="width:${b.val / mxv * 100}%"></i></div>
+    <div class="small muted">재고 ${man(b.val)}원 · 재고 SKU ${b.instock}/${b.sku} · 재고 일수 ${days(b.cover)}${b.lead ? ` · 리드타임 ${b.lead}일` : ''}</div>
+    ${openBrand === b.brand ? `<table class="bitems"><thead><tr><th>상품</th><th class="n">재고</th><th class="n">${inv.window_days}일 판매</th><th class="n">소진</th></tr></thead><tbody>${b.items.map((i) => `<tr><td>${esc(i.item)}</td><td class="n" style="${i.stock <= 0 ? 'color:var(--bad)' : ''}">${i.stock}</td><td class="n">${i.sold}</td><td class="n ${i.days != null && b.lead && i.days <= b.lead + 7 ? 'tx-bad' : 'muted'}">${i.stock <= 0 ? '품절' : days(i.days)}</td></tr>`).join('')}</tbody></table><div class="small muted">소진 = 최근 판매 속도로 재고가 바닥나기까지 · 빨강 = 리드타임 안에 바닥남</div>` : ''}
+  </div>`).join('');
+  el.innerHTML = `
+  <h2 style="margin-top:4px">재고 한눈에<small>${md(inv.day)} 기준 · 김사원 재고현황</small></h2>
+  <div class="kpis">
+    <div class="kpi"><div class="k">재고자산(원가)</div><div class="v">${man(inv.total_val)}원</div><div class="s">판매가 기준 ${man(inv.total_retail)}원</div></div>
+    <div class="kpi"><div class="k">재고 일수</div><div class="v">${days(inv.cover)}</div><div class="s">최근 ${inv.window_days}일 판매 속도 기준</div></div>
+    <div class="kpi"><div class="k">품절 · 3개 이하</div><div class="v">${al.filter((a) => a.level === '긴급').length} · ${al.filter((a) => a.level === '주의').length}</div><div class="s">재고 있는 SKU ${inv.sku_instock}개</div></div>
+    <div class="kpi"><div class="k">잠자는 재고</div><div class="v">${man(inv.dead_val)}원</div><div class="s">${inv.dead_cnt}종 · 최근 ${inv.window_days}일 판매 0</div></div>
+  </div>
+  <h2>오늘 확인할 것<small>품절=긴급 · 3개 이하=주의 · 재입고 전까지 표시</small></h2>
+  <div class="card">${al.length ? `<table><thead><tr><th></th><th>상품</th><th class="n">시작</th><th class="n">재고</th></tr></thead><tbody>${al.map((a) => `<tr><td><span class="chip ${a.level === '긴급' ? 'bad' : 'warn'}">${a.level === '긴급' ? '품절' : '주의'}</span></td><td>${esc(a.item)}${a.new ? ' <span class="badge">신규</span>' : ''}<div class="muted small">${esc(a.brand)}</div></td><td class="n muted">${sinceTxt(a)}${a.days ? `<div class="small">${a.days}일째</div>` : ''}</td><td class="n" style="${a.stock <= 0 ? 'color:var(--bad)' : ''}">${a.stock}개</td></tr>`).join('')}</tbody></table>` : '<div class="empty">재고 3개 이하이거나 품절된 상품이 없습니다.</div>'}</div>
+  <h2>발주 제안<small>리드타임 반영</small></h2>
+  <div class="card">${ro.length ? ro.map((r) => `<div class="ord"><div><b>${esc(r.brand)}</b> <span class="small muted">${esc(r.situation || '')}</span></div><div class="small ${r.late ? 'tx-bad' : ''}">→ ${esc(r.plan || '')}</div></div>`).join('') : '<div class="empty">지금 발주가 필요한 브랜드가 없습니다.</div>'}</div>
+  <h2>브랜드별 재고<small>재고자산 순 · 눌러서 상품 보기</small></h2>
+  <div class="card">${brandRows}<div class="small muted" style="margin-top:8px">상태: 부족 = 재고 일수가 리드타임+2주 이하 · 과잉 = 180일 이상 · 재고자산은 원가 확정 상품만${inv.no_cost ? ` (원가 미확정 ${inv.no_cost}종 제외)` : ''}</div></div>
+  <h2>잠자는 재고 TOP 10<small>최근 ${inv.window_days}일 판매 0 · 묶음·할인 기획 후보</small></h2>
+  <div class="card">${inv.dead.length ? `<table><thead><tr><th>상품</th><th class="n">재고</th><th class="n">재고자산</th></tr></thead><tbody>${inv.dead.map((d) => `<tr><td>${esc(d.item)}<div class="muted small">${esc(d.brand)}</div></td><td class="n">${d.stock}</td><td class="n">${won(d.val)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">없음</div>'}</div>`;
+  el.querySelectorAll('.brow').forEach((r) => r.onclick = () => { openBrand = openBrand === r.dataset.brand ? null : r.dataset.brand; drawStock(el); });
 }
 
 /* ---------- 매출 ---------- */
