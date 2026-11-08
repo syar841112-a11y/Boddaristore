@@ -100,7 +100,7 @@ nav.tabs button[aria-current=page] { color: var(--green); font-weight: 700; }
 .spark { width: 100%; height: 120px; display: block; }
 [hidden] { display: none !important; }
 .idea { padding: 7px 0; border-bottom: 1px solid var(--line); } .idea:last-of-type { border-bottom: 0; } .idea { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; font-size: 14px; line-height: 1.55; } .idea .no { margin-top: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; display: inline-grid; place-items: center; } .idea .small { margin-top: 2px; } .ord { padding: 7px 0; border-bottom: 1px solid var(--line); } .ord:last-of-type { border-bottom: 0; } .ord .row { display: flex; justify-content: space-between; gap: 8px; }
-.bf .bfh { font-weight: 700; font-size: 14px; margin: 14px 0 6px; } .bf .bfh:first-child { margin-top: 0; } .bf p { margin: 4px 0; } .bfw { padding: 5px 0; font-size: 13.5px; border-bottom: 1px solid var(--line); } .bfw:last-child { border-bottom: 0; } .tx-bad { color: var(--bad); } .tx-warn { color: var(--warn); } .tx-ok { color: var(--ok); }
+.bf .bfh { font-weight: 700; font-size: 14px; margin: 14px 0 6px; } .bf .bfh:first-child { margin-top: 0; } .bf p { margin: 4px 0; } .bfw .wxi { font-size: 18px; margin-right: 6px; vertical-align: -2px; } .bfw { padding: 5px 0; font-size: 13.5px; border-bottom: 1px solid var(--line); } .bfw:last-child { border-bottom: 0; } .tx-bad { color: var(--bad); } .tx-warn { color: var(--warn); } .tx-ok { color: var(--ok); }
 .arow { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; } .arow:last-of-type { border-bottom: 0; } .arow .t { overflow-wrap: anywhere; }
 /* 노트북·큰 화면 (900px 이상): 위쪽 탭, 사진 가로 띠, 홈 2단 */
 @media (min-width: 900px) {
@@ -268,11 +268,12 @@ function loadWx() {
   fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5797&longitude=126.9700&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=2')
     .then((r) => r.json()).then((j) => { wx = j.daily; if (page === 'home') render(); }).catch(() => { wx = { error: 1 }; if (page === 'home') render(); });
 }
+const wxIcon = (c) => c === 0 ? '☀️' : c <= 2 ? '🌤️' : c === 3 ? '☁️' : c <= 48 ? '🌫️' : c <= 57 ? '🌦️' : c <= 67 || (c >= 80 && c <= 82) ? '🌧️' : c <= 77 || c === 85 || c === 86 ? '❄️' : '⛈️';
 const wxName = (c) => c === 0 ? '맑음' : c <= 3 ? '구름' : c <= 48 ? '안개' : c <= 67 || (c >= 80 && c <= 82) ? '비' : c <= 77 || c === 85 || c === 86 ? '눈' : '뇌우';
 function wxLine(i, label) {
   const day = wx.time[i], mm = wx.precipitation_sum[i] || 0, pp = wx.precipitation_probability_max[i];
   const closed = new Date(day + 'T00:00:00+09:00').getDay() === 1;
-  const base = `${label} ${md(day)} ${wxName(wx.weather_code[i])} ${Math.round(wx.temperature_2m_min[i])}~${Math.round(wx.temperature_2m_max[i])}°${mm >= 0.1 ? ` · 비 ${mm.toFixed(mm < 10 ? 1 : 0)}mm` : ''}${pp != null ? ` (${pp}%)` : ''}`;
+  const base = `<span class="wxi">${wxIcon(wx.weather_code[i])}</span>${label} ${md(day)} ${wxName(wx.weather_code[i])} ${Math.round(wx.temperature_2m_min[i])}~${Math.round(wx.temperature_2m_max[i])}°${mm >= 0.1 ? ` · 비 ${mm.toFixed(mm < 10 ? 1 : 0)}mm` : ''}${pp != null ? ` (${pp}%)` : ''}`;
   let act, cls = '';
   if (closed) act = '매장 휴무일';
   else if (mm >= 10) { act = '큰비 — 매장 매출 평균 약 47% 감소, 인스타 스토리·문자로 온라인 유도'; cls = 'bad'; }
