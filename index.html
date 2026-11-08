@@ -373,7 +373,7 @@ function drawSales(el) {
   <h2>최근 14일 매출 흐름<small><span style="color:#1F5A36">■</span> 매장 · <span style="color:#B23A32">■</span> 온라인</small></h2>
   <div class="card">${spark}</div>
   <h2>온라인 고객 동향<small>최근 7일 · 전주 대비</small></h2>
-  <div class="card"><table><thead><tr><th>채널</th><th class="n">방문자</th><th class="n">신규·재방문</th><th class="n">주문</th><th class="n">전환율</th></tr></thead><tbody>${chRows}</tbody></table>${tr.note ? `<div class="small muted" style="margin-top:6px">${esc(tr.note)}</div>` : '<div class="small muted" style="margin-top:6px">방문자는 카페24 애널리틱스·스마트스토어 통계 연결 후 표시됩니다.</div>'}</div>
+  <div class="card"><table><thead><tr><th>채널</th><th class="n">방문자</th><th class="n">신규·재방문</th><th class="n">주문</th><th class="n">전환율</th></tr></thead><tbody>${chRows}</tbody></table>${(tr.sources || []).length ? `<div class="small muted" style="margin:12px 0 4px">자사몰 유입 경로 · 최근 7일 (전주)</div>` + hbars(tr.sources.filter((r) => r.w || r.p), (r) => r.name, (r) => r.w, (r) => `${r.w}회 <span class="muted">(${r.p})</span>`) : ''}${tr.note ? `<div class="small muted" style="margin-top:6px">${esc(tr.note)}</div>` : '<div class="small muted" style="margin-top:6px">방문자는 카페24 애널리틱스·스마트스토어 통계 연결 후 표시됩니다.</div>'}</div>
   <h2>마케팅 활동<small>인스타그램 @boddaristore · 최근 7일</small></h2>
   <div class="card">${igBox}</div>
   <h2>어제 팔린 상품 TOP 10</h2>
