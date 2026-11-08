@@ -379,7 +379,7 @@ function drawSales(el) {
   <div class="card">${spark}</div>
   <h2>자사몰 · 고객과 마케팅<small>${tr.frm ? `${md(tr.frm)}~${md(tr.to)} · ` : ''}전주 대비</small></h2>
   <div class="card">${cafeHtml}<div class="sub">인스타그램 @boddaristore · 주간</div>${igHtml}</div>
-  <h2>스마트스토어 · 고객과 마케팅<small>${sm.frm ? `${md(sm.frm)}~${md(sm.to)} · ` : ''}주간 다운로드</small></h2>
+  <h2>스마트스토어 · 고객과 마케팅<small>${sm.frm ? `${md(sm.frm)}~${md(sm.to)}` : ''}</small></h2>
   <div class="card">${smHtml}</div>
   <h2>어제 팔린 상품 TOP 10</h2>
   <div class="card">${cat.length || band.length ? `<div class="small" style="margin-bottom:8px">${cat.length ? `<div class="muted small">매장 카테고리</div><div style="margin-bottom:6px">${shareTxt(cat, (r) => r.category)}</div>` : ''}${band.length ? `<div class="muted small">가격대</div><div>${shareTxt(band, (r) => r.band)}</div>` : ''}</div>` : ''}${top.length ? `<table><thead><tr><th>상품</th><th>채널</th><th class="n">수량</th><th class="n">금액</th><th class="n">마진</th></tr></thead><tbody>${top.map((r) => `<tr><td>${esc(r.product)}<div class="muted small">${esc(r.brand)}</div></td><td>${esc(r.channel)}</td><td class="n">${r.qty}</td><td class="n">${won(r.amount)}</td><td class="n ${r.margin != null && r.margin < .4 ? '' : 'muted'}" style="${r.margin != null && r.margin < .4 ? 'color:var(--warn)' : ''}">${r.margin == null ? '40%(추정)' : pct(r.margin, 0)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">전일 상품별 판매가 아직 반영되지 않았습니다(판매 파일 미입력 또는 판매 없음).</div>'}</div>
