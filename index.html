@@ -347,7 +347,7 @@ function drawStock(el) {
   const brandRows = inv.brands.map((b) => `<div class="brow${openBrand === b.brand ? ' open' : ''}" data-brand="${esc(b.brand)}">
     <div class="bh"><b>${esc(b.brand)}</b><span class="chip ${stCls[b.status] || ''}">${b.status}</span></div>
     <div class="bbar"><i style="width:${b.val / mxv * 100}%"></i></div>
-    <div class="small muted">재고 ${man(b.val)}원 · 재고 SKU ${b.instock}/${b.sku} · 재고 일수 ${days(b.cover)}${b.lead ? ` · 리드타임 ${b.lead}일` : ''}</div>
+    <div class="small muted">재고 ${man(b.val)}원 · 재고 SKU ${b.instock}/${b.sku} · 재고 일수 ${days(b.cover)}${b.days_basis && b.days_basis < inv.window_days ? ` (${md(b.since)} 입고 후 ${b.days_basis}일 판매 기준)` : ''}${b.lead ? ` · 리드타임 ${b.lead}일` : ''}</div>
     ${openBrand === b.brand ? `<table class="bitems"><thead><tr><th>상품</th><th class="n">재고</th><th class="n">${inv.window_days}일 판매</th><th class="n">소진</th></tr></thead><tbody>${b.items.map((i) => `<tr><td>${esc(i.item)}</td><td class="n" style="${i.stock <= 0 ? 'color:var(--bad)' : ''}">${i.stock}</td><td class="n">${i.sold}</td><td class="n ${i.days != null && b.lead && i.days <= b.lead + 7 ? 'tx-bad' : 'muted'}">${i.stock <= 0 ? '품절' : days(i.days)}</td></tr>`).join('')}</tbody></table><div class="small muted">소진 = 최근 판매 속도로 재고가 바닥나기까지 · 빨강 = 리드타임 안에 바닥남</div>` : ''}
   </div>`).join('');
   el.innerHTML = `
@@ -363,7 +363,7 @@ function drawStock(el) {
   <h2>발주 제안<small>리드타임 반영</small></h2>
   <div class="card">${ro.length ? ro.map((r) => `<div class="ord"><div><b>${esc(r.brand)}</b> <span class="small muted">${esc(r.situation || '')}</span></div><div class="small ${r.late ? 'tx-bad' : ''}">→ ${esc(r.plan || '')}</div></div>`).join('') : '<div class="empty">지금 발주가 필요한 브랜드가 없습니다.</div>'}</div>
   <h2>브랜드별 재고<small>재고자산 순 · 눌러서 상품 보기</small></h2>
-  <div class="card">${brandRows}<div class="small muted" style="margin-top:8px">상태: 부족 = 재고 일수가 리드타임+2주 이하 · 과잉 = 180일 이상 · 재고자산은 원가 확정 상품만${inv.no_cost ? ` (원가 미확정 ${inv.no_cost}종 제외)` : ''}</div></div>
+  <div class="card">${brandRows}<div class="small muted" style="margin-top:8px">재고 일수 = 브랜드 재고자산 ÷ 하루 평균 판매원가(최근 판매 기간, 늦게 들어온 브랜드는 입고일부터) · 부족 = 리드타임+2주 이하 · 과잉 = 180일 이상 · 신규 입고 = 판매 3주 미만이라 판단 보류 · 재고자산은 원가 확정 상품만${inv.no_cost ? ` (원가 미확정 ${inv.no_cost}종 제외)` : ''}</div></div>
   <h2>잠자는 재고 TOP 10<small>최근 ${inv.window_days}일 판매 0 · 묶음·할인 기획 후보</small></h2>
   <div class="card">${inv.dead.length ? `<table><thead><tr><th>상품</th><th class="n">재고</th><th class="n">재고자산</th></tr></thead><tbody>${inv.dead.map((d) => `<tr><td>${esc(d.item)}<div class="muted small">${esc(d.brand)}</div></td><td class="n">${d.stock}</td><td class="n">${won(d.val)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">없음</div>'}</div>`;
   el.querySelectorAll('.brow').forEach((r) => r.onclick = () => { openBrand = openBrand === r.dataset.brand ? null : r.dataset.brand; drawStock(el); });
